@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Importaciones Yesica - Cotizador Maestro Profesional</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700,900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Montserrat', sans-serif; background-color: #f1f5f9; color: #1e293b; margin: 0; padding: 0; overflow-x: hidden; }
+        .header-pink { color: #be185d; }
+        .card { background: white; border-radius: 1.2rem; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        
+        .input-style { width: 100%; padding: 0.9rem; border-radius: 0.75rem; border: 2px solid #cbd5e1; font-weight: 700; font-size: 1rem; outline: none; transition: all 0.2s; }
+        .input-style:focus { border-color: #be185d; box-shadow: 0 0 0 4px rgba(190, 24, 93, 0.1); }
+        
+        /* Contenedor del Reporte */
+        #reporteFinal { 
+            background: white; border: 4px solid #be185d; 
+            width: 100%; max-width: 800px; min-height: 1050px; /* Ajustado para Proporción Letter */
+            padding: 45px; position: relative; display: flex; flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            margin: 0 auto;
+        }
+
+        .watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 8rem; font-weight: 900; color: rgba(190, 24, 93, 0.03); pointer-events: none; text-transform: uppercase; white-space: nowrap; }
+
+        /* --- CORRECCIÓN PARA IMPRESIÓN EN 1 SOLA HOJA --- */
+        @media print {
+            @page { 
+                size: letter; 
+                margin: 0mm; /* Eliminamos márgenes de impresora */
+            }
+            body { background: white !important; padding: 0 !important; margin: 0 !important; }
+            .no-print { display: none !important; }
+            
+            #reporteFinal { 
+                margin: 0 !important; 
+                width: 100% !important; 
+                max-width: 100% !important; 
+                border: none !important; 
+                height: 100vh !important; /* Forzamos a que ocupe el alto de la pantalla exacto */
+                min-height: 100vh !important;
+                box-shadow: none !important;
+                padding: 30px !important; /* Reducimos padding para ganar espacio */
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: space-around !important; /* Distribuye mejor el espacio vertical */
+            }
+            
+            /* Ajuste de espaciado interno para que no empuje el contenido a la pág 2 */
+            .space-y-12 > * + * { margin-top: 1.5rem !important; } 
+            .header-pink { color: #be185d !important; -webkit-print-color-adjust: exact; }
+            .watermark { opacity: 0.1 !important; }
+        }
+    </style>
+</head>
+<body class="p-3 md:p-6">
+
+    <div class="max-w-[1450px] mx-auto">
+        
+        <div class="text-center mb-8 no-print">
+            <h1 class="text-5xl font-black header-pink italic tracking-tighter uppercase">IMPORTACIONES YESICA</h1>
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-[0.4em]">Cotizador Maestro Profesional - Unificado</p>
+        </div>
+
+        <div class="flex flex-wrap lg:flex-nowrap gap-8 justify-center items-start">
+            
+            <div class="w-full lg:w-[480px] space-y-6 no-print flex-shrink-0">
+                <div class="card p-6 space-y-5 border-t-8 border-slate-900 shadow-xl">
+                    <h2 class="text-lg font-black text-slate-800 uppercase italic border-b pb-2">1. Configuración de Unidad</h2>
+                    <div class="grid grid-cols-1 gap-4">
+                        <input type="text" id="infoVehiculo" placeholder="Vehículo (Año Marca Modelo)" class="input-style" oninput="actualizar()">
+                        <input type="text" id="infoLote" placeholder="Número de Lote (Subasta)" class="input-style" oninput="actualizar()">
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-3">
+                        <div>
+                            <label class="text-[10px] font-black uppercase text-pink-600 mb-1 block">Oferta $</label>
+                            <input type="number" id="inputBid" placeholder="0.00" class="input-style border-pink-200" oninput="calcular()">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-black uppercase text-green-600 mb-1 block">Ganancia $</label>
+                            <input type="number" id="inputGanancia" placeholder="0.00" class="input-style border-green-200" oninput="calcular()">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-black uppercase text-slate-500 mb-1 block">Categoría</label>
+                            <select id="tamanoIdx" class="input-style" onchange="calcular()">
+                                <option value="0">Sedán / Compacto</option>
+                                <option value="1">Especial</option>
+                                <option value="2">SUV Mediana</option>
+                                <option value="3">Pick-up / Grande</option>
+                                <option value="4">Extra Grande</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 p-5 rounded-2xl border-2 border-dashed border-slate-300 relative">
+                        <label class="text-xs font-black uppercase text-slate-500 mb-3 block text-center italic">--- Buscar Ciudad o Puerto ---</label>
+                        <input type="text" id="searchCiudad" placeholder="Escribe ciudad (ej: Miami North)..." class="input-style w-full mb-3 border-slate-400" oninput="filtrarCiudades()">
+                        <div id="listaSug" class="absolute z-50 bg-white border-2 border-slate-300 shadow-2xl rounded-xl max-h-72 overflow-y-auto hidden w-full left-0 mt-[-10px]"></div>
+                        
+                        <div class="flex gap-4">
+                            <input type="number" id="gruaValue" placeholder="Precio Grúa $" class="input-style w-1/2" oninput="calcular()">
+                            <select id="zonaOrigen" class="input-style w-1/2 text-sm" onchange="calcular()">
+                                <option value="FL">Ruta: Florida (FL)</option>
+                                <option value="PH">Ruta: Philadelphia (PH)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <select id="aduanaIdx" class="input-style bg-slate-900 text-white" onchange="calcular()">
+                        <option value="0.20|0.05464|std">Aduana: Motor Menor 1300 cc</option>
+                        <option value="0.25|0.05690|std">Aduana: Motor 1300 a 2000 cc</option>
+                        <option value="0.30|0.05916|std">Aduana: Motor Mayor 2000 cc</option>
+                        <option value="0.25|0.08535|std">Aduana: Camionetas 4x4 / Lujo</option>
+                        <option value="0.05|0.01197|std">Aduana: Pickups / Carga</option>
+                        <option value="0.25|0.06000|nejapa">Aduana: AWD Especial (Cálculo Nejapa)</option>
+                    </select>
+
+                    <button onclick="window.print()" class="w-full bg-pink-600 text-white font-black py-5 rounded-2xl shadow-xl text-xl hover:bg-pink-700 active:scale-95 transition-all uppercase italic flex items-center justify-center gap-3">
+                        🖨️ GENERAR PDF (1 HOJA)
+                    </button>
+                </div>
+
+                <div class="card p-6 bg-slate-900 text-white border-l-[10px] border-pink-600 shadow-xl">
+                    <h3 class="text-sm font-black uppercase text-pink-400 mb-4 italic text-center border-b border-slate-800 pb-3 tracking-wider">Cálculos Internos (Solo Uso de Yesica)</h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between border-b border-slate-800 pb-1"><span>Subasta (Fees + Gate):</span><span id="intSubasta" class="text-pink-300 font-bold">$0.00</span></div>
+                        <div class="flex justify-between border-b border-slate-800 pb-1"><span>Logística (Grúa + Mar):</span><span id="intLogistica" class="text-pink-300 font-bold">$0.00</span></div>
+                        <div class="flex justify-between border-b border-slate-800 pb-1 text-blue-400"><span>Impuestos SV (Estimados):</span><span id="intImpuestos" class="font-bold">$0.00</span></div>
+                        <div class="flex justify-between border-b border-slate-800 pb-1 text-yellow-500"><span>Gestión Yesica:</span><span class="font-bold">$350.00</span></div>
+                    </div>
+                    <div class="mt-5 flex justify-between items-center pt-3 border-t border-slate-800">
+                        <span class="text-xs uppercase font-black text-slate-400">Inversión Real de Importación:</span>
+                        <span id="intTotalCosto" class="text-2xl font-black text-white">$0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="w-full flex justify-center flex-grow">
+                <div id="reporteFinal">
+                    <div class="watermark">YESICA</div>
+                    
+                    <div class="flex justify-between items-start border-b-8 border-pink-600 pb-6 mb-10">
+                        <div>
+                            <h2 class="text-5xl font-black header-pink uppercase leading-none italic tracking-tighter">IMPORTACIONES YESICA</h2>
+                            <p class="text-sm font-bold text-slate-800 mt-2 tracking-[0.2em] uppercase">Cotización de Referencia de Importación</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase">Emitido el:</p>
+                            <p id="fechaActual" class="text-xl font-black text-slate-900"></p>
+                        </div>
+                    </div>
+
+                    <div class="flex-grow space-y-12">
+                        <div class="bg-slate-50 p-10 rounded-[2rem] border-2 border-slate-100 relative">
+                            <span class="absolute -top-3 left-10 bg-slate-900 text-white text-[10px] font-black px-4 py-1 rounded uppercase tracking-widest italic">Unidad de Referencia</span>
+                            <h3 id="dispVehiculo" class="text-5xl font-black text-slate-900 uppercase italic leading-tight">---</h3>
+                            <div class="flex justify-between mt-10 border-t pt-6 border-slate-200 text-xl font-bold text-slate-500 uppercase">
+                                <p>LOTE #: <span id="dispLote" class="text-slate-900 font-black underline">---</span></p>
+                                <p>ORIGEN: <span id="dispCiudad" class="text-slate-900 font-black">---</span></p>
+                            </div>
+                        </div>
+
+                        <div class="text-center py-12 relative">
+                            <p class="text-sm font-black text-slate-400 uppercase tracking-[0.5em] mb-6">Inversión Total Aproximada (All Included)</p>
+                            <div class="inline-block relative">
+                                <span id="resPresupuesto" class="text-[130px] font-black text-slate-900 leading-none tracking-tighter">$0</span>
+                                <div class="absolute -top-8 -right-16 bg-pink-600 text-white text-xs font-black px-6 py-2 rotate-12 rounded-lg shadow-xl uppercase">Todo Incluido</div>
+                            </div>
+                            <p class="text-md font-bold text-slate-500 mt-24 max-w-xl mx-auto italic leading-relaxed">
+                                Este monto representa el costo total estimado del vehículo puesto en El Salvador, incluyendo impuestos de aduana cancelados, transporte internacional y gestión profesional hasta primera matrícula.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="border-t-4 border-slate-100 pt-10 grid grid-cols-3 gap-6 text-center mt-auto text-sm font-bold">
+                        <div><p class="text-[10px] font-black text-slate-400 uppercase mb-2">País Destino</p><p class="uppercase">EL SALVADOR</p></div>
+                        <div><p class="text-[10px] font-black text-slate-400 uppercase mb-2">Trámite</p><p class="uppercase">PRIMERA PLACA</p></div>
+                        <div><p class="text-[10px] font-black text-slate-400 uppercase mb-2">Estatus Aduana</p><p class="uppercase">CANCELADA</p></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const TARIFAS_MAR = { "FL": [750, 850, 900, 950, 1325], "PH": [825, 925, 975, 1100, 1395] };
+        
+        const CIUDADES = {
+            "Birmingham (Copart/IAAI)": {p: 485, z: "FL"}, "Dothan (Copart/IAAI)": {p: 485, z: "FL"}, "Huntsville (IAAI)": {p: 485, z: "FL"}, "Mobile (Copart)": {p: 475, z: "FL"}, "Mobile South (Copart)": {p: 495, z: "FL"}, "Montgomery (Copart)": {p: 475, z: "FL"}, "Tanner (Copart)": {p: 495, z: "FL"}, "Fayetteville (Copart/IAAI)": {p: 675, z: "FL"}, "Little Rock (Copart/IAAI)": {p: 700, z: "FL"}, "Clearwater (IAAI)": {p: 225, z: "FL"}, "Clewiston (IAAI)*": {p: 175, z: "FL"}, "Fort Myers (IAAI)": {p: 220, z: "FL"}, "Fort Pierce (Copart/IAAI)": {p: 150, z: "FL"}, "Jacksonville (IAAI)": {p: 250, z: "FL"}, "Jacksonville North (Copart)": {p: 250, z: "FL"}, "Miami Central (Copart)": {p: 100, z: "FL"}, "Miami North (Copart/IAAI)": {p: 100, z: "FL"}, "Miami South (Copart)": {p: 100, z: "FL"}, "Ocala (Copart)": {p: 250, z: "FL"}, "Orlando (IAAI)": {p: 175, z: "FL"}, "Orlando North (Copart/IAAI)": {p: 175, z: "FL"}, "Orlando South (Copart)": {p: 175, z: "FL"}, "Pensacola (IAAI)": {p: 350, z: "FL"}, "Punta Gorda (Copart)": {p: 220, z: "FL"}, "Punta Gorda South (Copart)": {p: 225, z: "FL"}, "Tallahassee (Copart)": {p: 320, z: "FL"}, "Tampa (IAAI)": {p: 225, z: "FL"}, "Tampa North (IAAI)": {p: 225, z: "FL"}, "Tampa South (Copart)": {p: 205, z: "FL"}, "Thonotosassa (Copart)": {p: 250, z: "FL"}, "West Palm Beach (Copart)": {p: 120, z: "FL"}, "West Palm Beach (IAAI)": {p: 145, z: "FL"}, "Atlanta (IAAI)": {p: 345, z: "FL"}, "Atlanta Crashedtoys (Copart)": {p: 345, z: "FL"}, "Atlanta East/N/S (Copart/IAAI)": {p: 345, z: "FL"}, "Atlanta West (Copart)": {p: 345, z: "FL"}, "Augusta": {p: 395, z: "FL"}, "Cartersville (Copart)": {p: 345, z: "FL"}, "Fairburn (Copart)": {p: 345, z: "FL"}, "Macon (Copart/IAAI)": {p: 345, z: "FL"}, "Savannah (Copart/IAAI)": {p: 345, z: "FL"}, "Tifton (Copart/IAAI)": {p: 345, z: "FL"}, "Chicago North (FL-Route)": {p: 725, z: "FL"}, "Chicago South (FL-Route)": {p: 750, z: "FL"}, "Chicago West (IAAI) (FL-Route)": {p: 725, z: "FL"}, "Lincoln (IAAI) (FL-Route)": {p: 825, z: "FL"}, "Peoria (Copart) (FL-Route)": {p: 825, z: "FL"}, "Southern Illinois (Copart) (FL-Route)": {p: 675, z: "FL"}, "St. Louis (IAAI) (FL-Route)": {p: 675, z: "FL"}, "Wheeling (Copart) (FL-Route)": {p: 675, z: "FL"}, "Cicero (Copart)": {p: 700, z: "FL"}, "Dyer (Copart)": {p: 700, z: "FL"}, "Fort Wayne (Copart)": {p: 900, z: "FL"}, "Indianapolis (Copart/IAAI)": {p: 670, z: "FL"}, "Indianapolis South (IAAI)": {p: 670, z: "FL"}, "South Bend (IAAI)": {p: 875, z: "FL"}, "Kansas City (Copart/IAAI)": {p: 675, z: "FL"}, "Bowling Green (IAAI)": {p: 750, z: "FL"}, "Earlington (Copart)": {p: 800, z: "FL"}, "Lexington East/West (Copart)": {p: 675, z: "FL"}, "Louisville (Copart/IAAI)": {p: 675, z: "FL"}, "Louisville North (IAAI)": {p: 675, z: "FL"}, "Paducah (IAAI)": {p: 975, z: "FL"}, "Walton (Copart)": {p: 625, z: "FL"}, "Baton Rouge (Copart/IAAI)": {p: 495, z: "FL"}, "Lafayette (IAAI)": {p: 525, z: "FL"}, "New Orleans (Copart/IAAI)": {p: 495, z: "FL"}, "New Orleans East (IAAI)": {p: 495, z: "FL"}, "Baltimore (Copart/IAAI) (FL-Route)": {p: 580, z: "FL"}, "Baltimore East (Copart) (FL-Route)": {p: 580, z: "FL"}, "Dundalk (IAAI) (FL-Route)": {p: 580, z: "FL"}, "Laurel (IAAI) (FL-Route)": {p: 580, z: "FL"}, "Metro DC (IAAI) (FL-Route)": {p: 580, z: "FL"}, "Washington DC (Copart) (FL-Route)": {p: 580, z: "FL"}, "Detroit (Copart/IAAI) (FL-Route)": {p: 850, z: "FL"}, "Minneapolis (Copart) (FL-Route)": {p: 795, z: "FL"}, "Minneapolis North (Copart) (FL-Route)": {p: 795, z: "FL"}, "Minneapolis/St. Paul (IAAI) (FL-Route)": {p: 795, z: "FL"}, "St. Cloud (Copart) (FL-Route)": {p: 795, z: "FL"}, "Grenada (IAAI)": {p: 475, z: "FL"}, "Gulf Coast (IAAI)": {p: 495, z: "FL"}, "Jackson (Copart/IAAI)": {p: 475, z: "FL"}, "Columbia (Copart) (MO)": {p: 750, z: "FL"}, "Kansas City East (IAAI) (MO)": {p: 695, z: "FL"}, "Springfield (Copart/IAAI) (MO)": {p: 725, z: "FL"}, "St. Louis (Copart) (MO)": {p: 675, z: "FL"}, "Asheville (IAAI)": {p: 500, z: "FL"}, "Charlotte (IAAI)": {p: 400, z: "FL"}, "China Grove (Copart)": {p: 400, z: "FL"}, "Concord (Copart/IAAI)": {p: 400, z: "FL"}, "Gastonia (Copart)": {p: 425, z: "FL"}, "Greensboro (IAAI)": {p: 400, z: "FL"}, "High Point": {p: 450, z: "FL"}, "Lumberton (Copart)": {p: 400, z: "FL"}, "Mebane (Copart)": {p: 400, z: "FL"}, "Mocksville (Copart)": {p: 430, z: "FL"}, "Raleigh (Copart/IAAI)": {p: 395, z: "FL"}, "Raleigh North (Copart)": {p: 395, z: "FL"}, "Wilmington (IAAI)": {p: 500, z: "FL"}, "Akron-Canton (IAAI) (OH) (FL-Route)": {p: 775, z: "FL"}, "Cincinnati (IAAI) (OH) (FL-Route)": {p: 725, z: "FL"}, "Cincinnati South (IAAI) (OH) (FL-Route)": {p: 725, z: "FL"}, "Cleveland (IAAI) (OH) (FL-Route)": {p: 750, z: "FL"}, "Cleveland E/W (Copart) (OH) (FL-Route)": {p: 750, z: "FL"}, "Columbus (Copart/IAAI) (OH) (FL-Route)": {p: 725, z: "FL"}, "Dayton (Copart/IAAI) (OH) (FL-Route)": {p: 725, z: "FL"}, "Charleston (IAAI) (SC)": {p: 350, z: "FL"}, "Columbia (Copart/IAAI) (SC)": {p: 325, z: "FL"}, "Gaston (Copart)* (SC)": {p: 400, z: "FL"}, "Greenville (IAAI) (SC)": {p: 350, z: "FL"}, "Lexington (IAAI) (SC)": {p: 325, z: "FL"}, "North Charleston (Copart) (SC)": {p: 325, z: "FL"}, "Shallotte (Copart)* (SC)": {p: 400, z: "FL"}, "Spartanburg (Copart) (SC)": {p: 360, z: "FL"}, "Chattanooga (IAAI)": {p: 550, z: "FL"}, "Knoxville (Copart/IAAI)": {p: 480, z: "FL"}, "Memphis (Copart/IAAI)": {p: 480, z: "FL"}, "Nashville (Copart/IAAI)": {p: 480, z: "FL"}, "Austin (Copart/IAAI) (TX)": {p: 500, z: "FL"}, "Dallas (IAAI) (TX)": {p: 500, z: "FL"}, "Dallas/Ft. Worth (IAAI) (TX)": {p: 500, z: "FL"}, "Dallas South (Copart) (TX)": {p: 500, z: "FL"}, "Fort Worth North (IAAI) (TX)": {p: 600, z: "FL"}, "Ft Worth (Copart) (TX)": {p: 600, z: "FL"}, "Houston (Copart/IAAI) (TX)": {p: 550, z: "FL"}, "Houston East (Copart) (TX)": {p: 550, z: "FL"}, "Houston North (IAAI) (TX)": {p: 550, z: "FL"}, "Houston South (IAAI) (TX)": {p: 550, z: "FL"}, "San Antonio (Copart/IAAI) (TX)": {p: 500, z: "FL"}, "San Antonio South (IAAI) (TX)": {p: 500, z: "FL"}, "Culpeper (IAAI) (VA) (FL-Route)": {p: 550, z: "FL"}, "Danville (Copart) (VA) (FL-Route)": {p: 600, z: "FL"}, "Fredericksburg (Copart) (VA) (FL-Route)": {p: 550, z: "FL"}, "Fredericksburg South (Copart/IAAI) (VA) (FL-Route)": {p: 550, z: "FL"}, "Hampton (Copart) (VA) (FL-Route)": {p: 575, z: "FL"}, "Northern Virginia (IAAI) (VA) (FL-Route)": {p: 550, z: "FL"}, "Richmond (Copart/IAAI) (VA) (FL-Route)": {p: 550, z: "FL"}, "Richmond East (Copart) (VA) (FL-Route)": {p: 550, z: "FL"}, "Suffolk (IAAI) (VA) (FL-Route)": {p: 550, z: "FL"}, "Tidewater (IAAI) (VA) (FL-Route)": {p: 550, z: "FL"},
+            "Hartford (Copart/IAAI)": {p: 275, z: "PH"}, "Hartford North (IAAI)": {p: 275, z: "PH"}, "Hartford South (IAAI)": {p: 300, z: "PH"}, "Hartford Springfield (Copart)": {p: 300, z: "PH"}, "New Britain (Copart)*": {p: 275, z: "PH"}, "New Castle (IAAI) (DE)": {p: 125, z: "PH"}, "Seaford (Copart) (DE)": {p: 200, z: "PH"}, "Seaford Fruitland (Copart)* (DE)": {p: 300, z: "PH"}, "Chicago North (Copart/IAAI) (PH-Route)": {p: 650, z: "PH"}, "Chicago South (Copart/IAAI) (PH-Route)": {p: 650, z: "PH"}, "Chicago West (IAAI) (PH-Route)": {p: 650, z: "PH"}, "Southern Illinois (Copart) (PH-Route)": {p: 650, z: "PH"}, "Lyman (Copart) (ME)": {p: 650, z: "PH"}, "Portland Gorham (IAAI) (ME)": {p: 625, z: "PH"}, "Windham (Copart) (ME)": {p: 650, z: "PH"}, "Baltimore (Copart/IAAI) (PH-Route)": {p: 200, z: "PH"}, "Baltimore East (Copart) (PH-Route)": {p: 235, z: "PH"}, "Baltimore East (Copart)* (PH-Route)": {p: 265, z: "PH"}, "Dundalk (IAAI) (PH-Route)": {p: 200, z: "PH"}, "Laurel (IAAI) (PH-Route)": {p: 235, z: "PH"}, "Metro DC (IAAI) (PH-Route)": {p: 225, z: "PH"}, "Washington DC (Copart) (PH-Route)": {p: 225, z: "PH"}, "Washington DC (Copart)* (PH-Route)": {p: 250, z: "PH"}, "Elkton (IAAI) (PH-Route)": {p: 175, z: "PH"}, "Boston North (Copart)": {p: 500, z: "PH"}, "Boston North Hudson (Copart)*": {p: 500, z: "PH"}, "Boston Shirley (IAAI)": {p: 500, z: "PH"}, "Boston South (Copart)": {p: 500, z: "PH"}, "Frederown (Copart)": {p: 430, z: "PH"}, "Taunton (IAAI)": {p: 430, z: "PH"}, "Templeton (IAAI)": {p: 525, z: "PH"}, "West Warren (Copart)": {p: 500, z: "PH"}, "Detroit (Copart/IAAI) (PH-Route)": {p: 750, z: "PH"}, "Flint (Copart/IAAI) (PH-Route)": {p: 750, z: "PH"}, "Grand Rapids (Copart) (PH-Route)": {p: 750, z: "PH"}, "Kincheloe (Copart)": {p: 875, z: "PH"}, "Lansing (Copart)": {p: 750, z: "PH"}, "Wayland (Copart)": {p: 750, z: "PH"}, "Minneapolis (Copart) (PH-Route)": {p: 775, z: "PH"}, "Minneapolis North (Copart) (PH-Route)": {p: 775, z: "PH"}, "Minneapolis/St. Paul (IAAI) (PH-Route)": {p: 775, z: "PH"}, "Minneapolis South (IAAI) (PH-Route)": {p: 775, z: "PH"}, "St. Cloud (Copart) (PH-Route)": {p: 775, z: "PH"}, "Candia (Copart) (NH)": {p: 580, z: "PH"}, "Manchester (IAAI) (NH)": {p: 530, z: "PH"}, "Avenel (IAAI) (NJ)": {p: 180, z: "PH"}, "Central New Jersey (IAAI)": {p: 180, z: "PH"}, "Englishtown (IAAI)": {p: 185, z: "PH"}, "Glassboro East/West (Copart)": {p: 150, z: "PH"}, "Port Murray (IAAI)": {p: 275, z: "PH"}, "Sayreville (IAAI)": {p: 225, z: "PH"}, "Somerville (Copart) (NJ)": {p: 180, z: "PH"}, "Southern New Jersey (IAAI)": {p: 175, z: "PH"}, "Trenton (Copart) (NJ)": {p: 180, z: "PH"}, "Trenton Jobstown (Copart)*": {p: 225, z: "PH"}, "Somerville Coopersburg (Copart)*": {p: 250, z: "PH"}, "Albany (Copart/IAAI) (NY)": {p: 325, z: "PH"}, "Alden (Copart)* (NY)": {p: 800, z: "PH"}, "Amsterdam (Copart)* (NY)": {p: 450, z: "PH"}, "Buffalo (Copart) (NY)": {p: 625, z: "PH"}, "Buffalo (IAAI) (NY)": {p: 575, z: "PH"}, "Buffalo Vulcan (IAAI)*": {p: 575, z: "PH"}, "Long Island (Copart/IAAI) (NY)": {p: 325, z: "PH"}, "Monticello (Copart) (NY)": {p: 350, z: "PH"}, "Newburgh (Copart/IAAI) (NY)": {p: 270, z: "PH"}, "Rochester (Copart/IAAI) (NY)": {p: 425, z: "PH"}, "Route (Copart)* (NY)": {p: 325, z: "PH"}, "Staten Island (IAAI) (NY)": {p: 350, z: "PH"}, "Syracuse (IAAI/Copart)": {p: 375, z: "PH"}, "Akron-Canton (IAAI) (OH) (PH-Route)": {p: 575, z: "PH"}, "Cincinnati (IAAI) (OH) (PH-Route)": {p: 600, z: "PH"}, "Cincinnati South (IAAI) (OH) (PH-Route)": {p: 600, z: "PH"}, "Cleveland (IAAI) (OH) (PH-Route)": {p: 575, z: "PH"}, "Cleveland E/W (Copart) (OH) (PH-Route)": {p: 575, z: "PH"}, "Columbus (Copart/IAAI) (OH) (PH-Route)": {p: 575, z: "PH"}, "Dayton (Copart/IAAI) (OH) (PH-Route)": {p: 575, z: "PH"}, "Altoona (IAAI/Copart) (PA)": {p: 330, z: "PH"}, "Bridgeport (IAAI) (PA)": {p: 120, z: "PH"}, "Chambersburg (Copart) (PA)": {p: 220, z: "PH"}, "Erie (IAAI) (PA)": {p: 540, z: "PH"}, "Harrisburg (Copart) (PA)": {p: 170, z: "PH"}, "Philadelphia (Copart) (PA)": {p: 145, z: "PH"}, "Philadelphia (IAAI) (PA)": {p: 120, z: "PH"}, "Philadelphia East (Copart)*": {p: 145, z: "PH"}, "Philadelphia East Malvern (Copart)*": {p: 225, z: "PH"}, "Pittsburgh (IAAI) (PA)": {p: 375, z: "PH"}, "Pittsburgh E/S/W (Copart)": {p: 375, z: "PH"}, "Pittsburgh North (IAAI/Copart)": {p: 375, z: "PH"}, "Pittsburgh West (Copart)*": {p: 425, z: "PH"}, "Scranton (IAAI/Copart) (PA)": {p: 190, z: "PH"}, "York Haven (Copart) (PA)": {p: 175, z: "PH"}, "York Springs (IAAI) (PA)": {p: 190, z: "PH"}, "Exeter (Copart) (RI)": {p: 400, z: "PH"}, "Providence (IAAI) (RI)": {p: 375, z: "PH"}, "Burlington (IAAI) (VT)": {p: 725, z: "PH"}, "Rutland (Copart) (VT)": {p: 750, z: "PH"}, "Culpeper (IAAI) (VA) (PH-Route)": {p: 325, z: "PH"}, "Danville (Copart) (VA) (PH-Route)": {p: 525, z: "PH"}, "Fredericksburg (Copart) (VA) (PH-Route)": {p: 325, z: "PH"}, "Hampton (Copart) (VA) (PH-Route)": {p: 425, z: "PH"}, "Northern Virginia (IAAI) (VA) (PH-Route)": {p: 325, z: "PH"}, "Pulaski (IAAI) (VA) (PH-Route)": {p: 525, z: "PH"}, "Richmond (Copart/IAAI) (VA) (PH-Route)": {p: 350, z: "PH"}, "Richmond East (Copart) (VA) (PH-Route)": {p: 375, z: "PH"}, "Roanoke (IAAI) (VA) (PH-Route)": {p: 525, z: "PH"}, "Suffolk (IAAI) (VA) (PH-Route)": {p: 470, z: "PH"}, "Tidewater (IAAI) (VA) (PH-Route)": {p: 400, z: "PH"}, "Appleton (IAAI) (WI)": {p: 750, z: "PH"}, "Madison South (Copart) (WI)": {p: 775, z: "PH"}, "Milwaukee (Copart/IAAI) (WI)": {p: 750, z: "PH"}, "Milwaukee South (Copart) (WI)": {p: 750, z: "PH"}, "Portage (IAAI) (WI)": {p: 750, z: "PH"}, "Buckhannon (IAAI) (WV)": {p: 600, z: "PH"}, "Charleston (Copart) (WV)": {p: 600, z: "PH"}, "Shady Spring (IAAI) (WV)": {p: 600, z: "PH"}
+        };
+
+        const SALVAGE_FEES = { gate: 95, env: 15, title: 20, buyerFee: [{max: 49.99, val: 25}, {max: 99.99, val: 45}, {max: 199.99, val: 80}, {max: 299.99, val: 130}, {max: 349.99, val: 137.5}, {max: 399.99, val: 145}, {max: 449.99, val: 175}, {max: 499.99, val: 185}, {max: 549.99, val: 205}, {max: 599.99, val: 210}, {max: 699.99, val: 240}, {max: 799.99, val: 270}, {max: 899.99, val: 295}, {max: 999.99, val: 320}, {max: 1199.99, val: 375}, {max: 1299.99, val: 395}, {max: 1399.99, val: 410}, {max: 1499.99, val: 430}, {max: 1599.99, val: 445}, {max: 1699.99, val: 465}, {max: 1799.99, val: 485}, {max: 1999.99, val: 510}, {max: 2399.99, val: 535}, {max: 2499.99, val: 570}, {max: 2999.99, val: 610}, {max: 3499.99, val: 655}, {max: 3999.99, val: 705}, {max: 4499.99, val: 725}, {max: 4999.99, val: 750}, {max: 5499.99, val: 775}, {max: 5999.99, val: 800}, {max: 6499.99, val: 825}, {max: 6999.99, val: 845}, {max: 7499.99, val: 880}, {max: 7999.99, val: 900}, {max: 8499.99, val: 925}, {max: 9999.99, val: 945}, {max: 14999.99, val: 1000}, {max: Infinity, percent: 0.075}], liveBid: [{max: 99.99, val: 0}, {max: 499.99, val: 50}, {max: 999.99, val: 65}, {max: 1499.99, val: 85}, {max: 1999.99, val: 95}, {max: 3999.99, val: 110}, {max: 5999.99, val: 125}, {max: 7999.99, val: 145}, {max: Infinity, val: 160}] };
+
+        function getFee(a, t) { for (let f of t) if (a <= f.max) return f.percent ? a * f.percent : f.val; return 0; }
+        
+        function filtrarCiudades() {
+            const input = document.getElementById('searchCiudad').value.toLowerCase();
+            const sug = document.getElementById('listaSug');
+            sug.innerHTML = '';
+            if (input.length < 1) { sug.classList.add('hidden'); return; }
+            Object.keys(CIUDADES).filter(c => c.toLowerCase().includes(input)).forEach(c => {
+                const div = document.createElement('div');
+                div.className = 'p-4 hover:bg-pink-50 cursor-pointer border-b font-bold text-sm flex justify-between';
+                div.innerHTML = `<span>${c}</span> <span class="text-pink-600 font-black">$${CIUDADES[c].p}</span>`;
+                div.onclick = () => {
+                    document.getElementById('searchCiudad').value = c;
+                    document.getElementById('gruaValue').value = CIUDADES[c].p;
+                    document.getElementById('zonaOrigen').value = CIUDADES[c].z;
+                    sug.classList.add('hidden');
+                    calcular();
+                };
+                sug.appendChild(div);
+            });
+            sug.classList.remove('hidden');
+        }
+
+        function actualizar() {
+            document.getElementById('dispVehiculo').innerText = document.getElementById('infoVehiculo').value || "---";
+            document.getElementById('dispLote').innerText = document.getElementById('infoLote').value || "---";
+            document.getElementById('dispCiudad').innerText = document.getElementById('searchCiudad').value || "---";
+        }
+
+        function calcular() {
+            const bid = parseFloat(document.getElementById('inputBid').value) || 0;
+            const grua = parseFloat(document.getElementById('gruaValue').value) || 0;
+            const zona = document.getElementById('zonaOrigen').value;
+            const tIdx = parseInt(document.getElementById('tamanoIdx').value);
+            const aduData = document.getElementById('aduanaIdx').value.split('|');
+            const ganancia = parseFloat(document.getElementById('inputGanancia').value) || 0;
+
+            let feeSubasta = 0, logistica = 0, impuestos = 0, costoReal = 0, totalCliente = 0;
+
+            if (bid > 0) {
+                feeSubasta = getFee(bid, SALVAGE_FEES.buyerFee) + getFee(bid, SALVAGE_FEES.liveBid) + 130;
+                logistica = grua + TARIFAS_MAR[zona][tIdx];
+                
+                const daiPorc = parseFloat(aduData[0]);
+                const aivPorc = parseFloat(aduData[1]);
+                const tipoRuta = aduData[2];
+
+                if (tipoRuta === "nejapa") {
+                    // RUTA AWD NEJAPA (Fórmulas de la imagen)
+                    const seguro = (bid + feeSubasta) * 0.02;
+                    const valorCif = bid + logistica + seguro + feeSubasta;
+                    const dai = valorCif * daiPorc;
+                    const iva = (valorCif + dai) * 0.13;
+                    const aiv = valorCif * 0.01;
+                    const matricula = (valorCif + dai) * 0.06;
+                    impuestos = dai + iva + aiv + matricula + 43.00;
+                } else {
+                    // RUTA ESTÁNDAR (Tus fórmulas originales)
+                    const cif = bid + feeSubasta + logistica;
+                    const dai = cif * daiPorc;
+                    const iva = (cif + dai) * 0.13;
+                    const aiv = cif * aivPorc;
+                    const matricula = (cif * 0.01 + 40);
+                    impuestos = dai + iva + aiv + matricula;
+                }
+
+                costoReal = bid + feeSubasta + logistica + impuestos + 350;
+                totalCliente = Math.round(costoReal + ganancia);
+            }
+
+            const f = (n) => '$' + n.toLocaleString('en-US', {minimumFractionDigits: 2});
+            document.getElementById('intSubasta').innerText = f(feeSubasta);
+            document.getElementById('intLogistica').innerText = f(logistica);
+            document.getElementById('intImpuestos').innerText = f(impuestos);
+            document.getElementById('intTotalCosto').innerText = f(costoReal);
+            document.getElementById('resPresupuesto').innerText = bid > 0 ? '$' + totalCliente.toLocaleString('en-US') : '$0';
+            actualizar();
+        }
+
+        document.getElementById('fechaActual').innerText = new Date().toLocaleDateString('es-SV', { day: 'numeric', month: 'long', year: 'numeric' });
+        window.onload = calcular;
+    </script>
+</body>
+</html>
