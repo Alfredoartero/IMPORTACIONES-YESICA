@@ -1,462 +1,165 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>IMPORTACIONES YESICA</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <style>
-    :root{
-      --bg:#0f1115; --panel:#171923; --muted:#c9ced6; --text:#f5f7fb;
-      --brand:#db2777; --brand-dark:#9d174d; --ring:#2a2f3b;
-      --radius:14px; --shadow:0 12px 30px rgba(0,0,0,.35); --t:.5s ease;
-      --container:1100px;
-    }
-    *{box-sizing:border-box}
-    body{margin:0;font-family:'Inter',sans-serif;background:var(--bg);color:var(--text)}
-    a{color:inherit;text-decoration:none}
-    img{display:block;max-width:100%}
-    .container{max-width:var(--container);margin:0 auto;padding:0 20px}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IMPORTACIONES YESICA</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 
-    header{position:sticky;top:0;z-index:50;background:rgba(15,17,21,.6);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,.06)}
-    .nav{display:flex;align-items:center;justify-content:space-between;padding:14px 0;gap:12px}
-    .brand-name{font-weight:800;letter-spacing:.3px}
-    nav ul{display:flex;gap:18px;list-style:none;margin:0;padding:0}
-    nav a{color:var(--muted);font-weight:600;transition:color var(--t)}
-    nav a:hover{color:var(--brand)}
-    .btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 16px;border-radius:10px;font-weight:700;transition:all var(--t)}
-    .btn-primary{background:var(--brand);color:#fff}.btn-primary:hover{background:var(--brand-dark);transform:translateY(-2px)}
-    .menu-btn{display:none;gap:8px;align-items:center;border:1px solid var(--ring);border-radius:10px;padding:8px 12px;background:transparent;color:var(--text);font-weight:700}
-    .menu-btn span{width:18px;height:2px;background:var(--text);display:block;position:relative}
-    .menu-btn span::before,.menu-btn span::after{content:"";position:absolute;left:0;width:18px;height:2px;background:var(--text)}
-    .menu-btn span::before{top:-6px}.menu-btn span::after{top:6px}
-    @media (max-width: 900px){
-      nav{display:none}
-      .menu-btn{display:flex}
-      .mobile{display:grid;gap:10px;padding:12px 0}
-      .mobile a{padding:10px;border:1px solid var(--ring);border-radius:10px;background:#141722}
-    }
-    .open nav{display:block}
-
-    .hero{position:relative;overflow:hidden}
-    .hero-bg{
-      min-height:68vh;
-      background:
-        linear-gradient(180deg,rgba(15,17,21,.68),rgba(15,17,21,.9)),
-        url('elantra-hero.jpg') center/cover no-repeat;
-      display:grid;place-items:center;padding:90px 20px 64px
-    }
-    .hero-inner{text-align:center;max-width:900px}
-    .hero h1{margin:0 0 14px;font-size:clamp(3.2rem,8vw,5rem);font-weight:800;line-height:1.02;color:var(--brand);text-shadow:0 8px 24px rgba(0,0,0,.6)}
-    .hero p{color:var(--muted);margin:0 0 22px;font-size:clamp(1rem,2vw,1.1rem)}
-    .btn-outline{border:2px solid var(--brand);color:var(--brand)} .btn-outline:hover{background:var(--brand);color:#0c0f14}
-
-    .section{padding:64px 0}
-    .section h2{margin:0 0 8px}
-    .lead{color:var(--muted)}
-
-    .grid{display:grid;gap:22px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
-    .card{
-      background:var(--panel);border:1px solid var(--ring);border-radius:var(--radius);
-      overflow:hidden;box-shadow:var(--shadow);transition:transform var(--t),box-shadow var(--t),border-color var(--t);
-      cursor:pointer;max-width:360px;margin:0 auto;
-    }
-    .card:hover{transform:translateY(-5px);box-shadow:0 16px 40px rgba(0,0,0,.45);border-color:#3a4050}
-    .thumb{position:relative;overflow:hidden}
-    .thumb img{width:100%;height:200px;object-fit:cover;transition:transform var(--t)}
-    .card:hover .thumb img{transform:scale(1.06)}
-    .badge{position:absolute;left:12px;top:12px;background:rgba(219,39,119,.12);color:var(--brand);border:1px solid var(--brand);padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700}
-    .card-body{padding:16px}
-    .meta{color:var(--muted);font-size:14px}
-    .price{font-weight:800;color:var(--brand);margin-top:8px}
-
-    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:14px;z-index:100}
-    .modal{width:min(900px,100%);background:var(--panel);border:1px solid var(--ring);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;transform:translateY(14px);opacity:0;transition:transform var(--t),opacity var(--t)}
-    .modal.open{transform:translateY(0);opacity:1}
-    .modal-head{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--ring)}
-    .modal-title{font-weight:800}
-    .close-btn{background:transparent;border:1px solid var(--ring);color:var(--text);border-radius:10px;padding:6px 10px;cursor:pointer}
-
-    .modal-body{display:grid;gap:12px;grid-template-columns:1.2fr .8fr}
-    @media (max-width:800px){.modal-body{grid-template-columns:1fr}}
-
-    .viewer{position:relative;border-right:1px solid var(--ring);background:#0e1118;overflow:hidden}
-    .viewer img{width:100%;height:420px;object-fit:cover;will-change:transform;cursor:zoom-in;touch-action:none}
-    .viewer.zoomed img{cursor:grab}
-    .nav-btn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.45);border:1px solid var(--ring);color:#fff;padding:8px 10px;border-radius:10px;cursor:pointer}
-    .prev{left:8px}.next{right:8px}
-    .thumbs{display:flex;gap:8px;overflow:auto;padding:10px;border-top:1px solid var(--ring);background:#0e1118}
-    .thumbs img{width:90px;height:60px;object-fit:cover;border:2px solid transparent;border-radius:8px;cursor:pointer}
-    .thumbs img.active{border-color:var(--brand)}
-
-    .info{padding:12px 16px;display:flex;flex-direction:column;gap:12px}
-    .chips{display:flex;flex-wrap:wrap;gap:8px}
-    .chip{background:rgba(219,39,119,.12);color:var(--brand);border:1px solid var(--brand);padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700}
-    .price-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
-    .price-big{font-weight:900;font-size:22px;color:var(--brand)}
-    .kv{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-    .kv .item{background:#131722;border:1px solid var(--ring);border-radius:10px;padding:10px 12px}
-    .kv .item b{display:block;font-size:12px;color:#aab1bb;margin-bottom:4px}
-    .spec{background:#131722;border:1px solid var(--ring);border-radius:10px;padding:10px 12px}
-    .small{color:var(--muted);font-size:13px}
-    .info .btn{width:100%}
-
-    #como-funciona .steps{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
-    #como-funciona .step{background:var(--panel);border:1px solid var(--ring);border-radius:var(--radius);padding:20px;text-align:center;box-shadow:var(--shadow);transition:transform var(--t), border-color var(--t)}
-    #como-funciona .step:hover{transform:translateY(-6px);border-color:#3a4050}
-    #como-funciona .icon{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;margin:0 auto 12px;background:var(--brand);color:#0c0f14;font-weight:900}
-
-    #contacto .contact{display:grid;gap:28px;grid-template-columns:1.1fr .9fr}
-    @media (max-width:900px){#contacto .contact{grid-template-columns:1fr}}
-    #contacto form{background:var(--panel);border:1px solid var(--ring);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);display:grid;gap:12px}
-    #contacto input,#contacto textarea{width:100%;padding:12px;border-radius:12px;border:1px solid var(--ring);background:#10131a;color:#fff}
-    #contacto input:focus,#contacto textarea:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 4px rgba(219,39,119,.15)}
-
-    footer{border-top:1px solid var(--ring);padding:24px 0;text-align:center;color:#aab1bb}
-  </style>
+<style>
+:root{
+  --bg:#0f1115;
+  --panel:#171923;
+  --muted:#c9ced6;
+  --text:#f5f7fb;
+  --brand:#db2777;
+  --ring:#2a2f3b;
+  --radius:14px;
+}
+body{
+  margin:0;
+  font-family:'Inter',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+.container{max-width:1100px;margin:auto;padding:20px}
+h1{color:var(--brand)}
+.grid{
+  display:grid;
+  gap:22px;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+}
+.card{
+  background:var(--panel);
+  border:1px solid var(--ring);
+  border-radius:var(--radius);
+  overflow:hidden;
+  cursor:pointer;
+  transition:.3s;
+}
+.card:hover{transform:translateY(-5px)}
+.thumb img{
+  width:100%;
+  height:200px;
+  object-fit:cover;
+}
+.badge{
+  position:absolute;
+  margin:10px;
+  background:var(--brand);
+  padding:4px 10px;
+  border-radius:999px;
+  font-size:12px;
+}
+.card-body{padding:15px}
+.meta{color:var(--muted);font-size:14px}
+.price{color:var(--brand);font-weight:800}
+.modal-backdrop{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.6);
+  display:none;
+  justify-content:center;
+  align-items:center;
+}
+.modal{
+  background:var(--panel);
+  padding:20px;
+  border-radius:14px;
+  max-width:800px;
+  width:95%;
+}
+.modal img{
+  width:100%;
+  max-height:400px;
+  object-fit:contain;
+}
+.close-btn{
+  float:right;
+  cursor:pointer;
+}
+</style>
 </head>
+
 <body>
 
-  <header id="hdr">
-    <div class="container nav">
-      <div class="brand-name">IMPORTACIONES YESICA</div>
-      <nav>
-        <ul>
-          <li><a href="#vehiculos">Vehículos</a></li>
-          <li><a href="#como-funciona">Cómo funciona</a></li>
-          <li><a href="#contacto">Contacto</a></li>
-        </ul>
-      </nav>
-      <button class="menu-btn" id="toggleMenu" aria-label="Abrir menú"><span></span> Menú</button>
-      <a class="btn btn-primary" href="https://wa.me/50370000000" target="_blank">WhatsApp</a>
-    </div>
-    <div class="container mobile" id="mobileNav" style="display:none">
-      <a href="#vehiculos">Vehículos</a>
-      <a href="#como-funciona">Cómo funciona</a>
-      <a href="#contacto">Contacto</a>
-      <a class="btn btn-primary" href="https://wa.me/50370000000" target="_blank">WhatsApp</a>
-    </div>
-  </header>
+<div class="container">
+  <h1>IMPORTACIONES YESICA</h1>
+  <h2>Vehículos disponibles</h2>
+  <div class="grid" id="vehicleGrid"></div>
+</div>
 
-  <section class="hero">
-    <div class="hero-bg">
-      <div class="hero-inner">
-        <h1>IMPORTACIONES YESICA</h1>
-        <p>Especialistas en <strong>importación de vehículos desde USA</strong> con logística completa y soporte en cada etapa.</p>
-        <div class="actions">
-          <a href="#vehiculos" class="btn btn-primary">Ver vehículos</a>
-          <a href="#contacto" class="btn btn-outline">Cotizar ahora</a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="vehiculos" class="section">
-    <div class="container">
-      <h2>Vehículos disponibles</h2>
-      <p class="lead">Toca la tarjeta para ver fotos y detalles.</p>
-      <div class="grid" id="vehicleGrid"></div>
-    </div>
-  </section>
-
-  <section id="como-funciona" class="section">
-    <div class="container">
-      <h2>Cómo funciona</h2>
-      <p class="lead">Proceso claro por etapas. Te mantenemos informado con fotos y videos.</p>
-      <div class="steps">
-        <div class="step"><div class="icon">1</div><strong>Brief y presupuesto</strong><p class="meta">Definimos modelo, estado, tope y tiempos.</p></div>
-        <div class="step"><div class="icon">2</div><strong>Búsqueda con reporte VIN</strong><p class="meta">Opciones en Copart/IAAI verificadas.</p></div>
-        <div class="step"><div class="icon">3</div><strong>Compra y logística</strong><p class="meta">Pago seguro, flete, llegada y aduana.</p></div>
-        <div class="step"><div class="icon">4</div><strong>Entrega y garantía</strong><p class="meta">Inspección final, entrega y postventa.</p></div>
-      </div>
-    </div>
-  </section>
-
-  <section id="contacto" class="section">
-    <div class="container">
-      <h2>Contáctanos</h2>
-      <p class="lead">Atención por WhatsApp en todo El Salvador.</p>
-      <div class="contact">
-        <div>
-          <p>📞 +503 7000 0000</p>
-          <p>✉️ ventas@importacionesyesica.com</p>
-          <p>📍 Entregas en todo el país</p>
-        </div>
-
-        <form onsubmit="sendWA(event)">
-          <label><span>Nombre</span><input id="nombre" placeholder="Tu nombre" required></label>
-          <label><span>Modelo deseado</span><input id="modelo" placeholder="Ej.: Hyundai Elantra 2017" required></label>
-          <label><span>Presupuesto / comentarios</span><textarea id="mensaje" rows="4" placeholder="Mi presupuesto es..."></textarea></label>
-          <button class="btn btn-primary" type="submit">Enviar por WhatsApp</button>
-        </form>
-      </div>
-    </div>
-  </section>
-
-  <div class="modal-backdrop" id="modalBackdrop" aria-hidden="true">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-      <div class="modal-head">
-        <div class="modal-title" id="modalTitle">Título vehículo</div>
-        <button class="close-btn" id="closeModal">Cerrar ✕</button>
-      </div>
-      <div class="modal-body">
-        <div class="viewer" id="viewer">
-          <img id="modalImg" src="" alt="">
-          <button class="nav-btn prev" id="prevBtn" aria-label="Anterior">◀️</button>
-          <button class="nav-btn next" id="nextBtn" aria-label="Siguiente">▶️</button>
-          <div class="thumbs" id="modalThumbs"></div>
-        </div>
-        <div class="info">
-          <div class="chips" id="modalChips"></div>
-          <div class="price-row">
-            <div class="price-big" id="modalPrice">$0</div>
-            <a id="modalWhats" class="btn btn-primary" target="_blank" href="#">Reservar</a>
-          </div>
-          <div class="kv" id="modalQuick"></div>
-          <div class="spec">
-            <b>Detalles</b>
-            <div id="modalMeta" class="small" style="margin-top:6px"></div>
-          </div>
-          <div class="spec">
-            <b>Observaciones</b>
-            <div id="modalDesc" class="small" style="margin-top:6px"></div>
-          </div>
-          <div class="small">Doble clic / doble toque en la foto para acercar. Arrastra para mover.</div>
-        </div>
-      </div>
-    </div>
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal">
+    <span class="close-btn" onclick="closeModal()">Cerrar ✕</span>
+    <h3 id="modalTitle"></h3>
+    <p id="modalMeta"></p>
+    <img id="modalImg">
+    <p id="modalDesc"></p>
+    <p id="modalPrice"></p>
   </div>
+</div>
 
-  <footer>©️ <span id="year"></span> IMPORTACIONES YESICA • Todos los derechos reservados.</footer>
+<script>
 
-  <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbww7dk2a1V0zrpprqD5SqU50o3S4Jly9eqPF_XYyfV-mr_aUfCA2fsVwIRgQCDza7dNRg/exec";
-    const WA_NUMBER = "50370000000";
+const API_URL = "https://script.google.com/macros/s/AKfycbyXVu4DdetKAkCpdvSHBYUhoLhqQSQKbc0bbE_PpYnK0-7SujCeJ-C0EFzZQ5WBwxFAkQ/exec";
 
-    document.getElementById("year").textContent = new Date().getFullYear();
+async function loadInventory(){
+  const grid = document.getElementById("vehicleGrid");
+  grid.innerHTML = "Cargando...";
 
-    const hdr=document.getElementById('hdr'), btn=document.getElementById('toggleMenu'), mobile=document.getElementById('mobileNav');
-    btn.addEventListener('click', ()=>{ const open=hdr.classList.toggle('open'); mobile.style.display=open?'grid':'none'; });
+  try{
+    const res = await fetch(API_URL);
+    const cars = await res.json();
+    grid.innerHTML = "";
 
-    function sendWA(e){
-      e.preventDefault();
-      const n=document.getElementById("nombre").value.trim();
-      const m=document.getElementById("modelo").value.trim();
-      const msj=document.getElementById("mensaje").value.trim();
-      window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(`Hola, soy ${n}. Me interesa ${m}. ${msj}`)}`,"_blank");
-    }
+    cars.forEach(c => {
 
-    function normalizeSrc(p){ if(/^https?:\/\//i.test(p)) return p.trim(); return encodeURI(p.trim()); }
+      const images = c.images || [];
+      const firstImage = images[0] || "";
 
-    function loadGallery(list) {
-      const loaded = [];
-      return Promise.all(list.map(src => new Promise(resolve => {
-        const img = new Image();
-        const url = normalizeSrc(src);
-        img.onload = () => { loaded.push(url); resolve(); };
-        img.onerror = () => { resolve(); };
-        img.src = url;
-      }))).then(() => loaded);
-    }
+      const card = document.createElement("div");
+      card.className = "card";
 
-    const backdrop = document.getElementById('modalBackdrop');
-    const closeBtn = document.getElementById('closeModal');
-    const modalImg = document.getElementById('modalImg');
-    const viewer = document.getElementById('viewer');
-    const thumbsBox = document.getElementById('modalThumbs');
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const quickBox = document.getElementById('modalQuick');
-    const chipsBox = document.getElementById('modalChips');
+      card.innerHTML = `
+        <div class="thumb" style="position:relative;">
+          <span class="badge">${c.badge || ""}</span>
+          <img src="${firstImage}">
+        </div>
+        <div class="card-body">
+          <h3>${c.titulo}</h3>
+          <p class="meta">${c.meta}</p>
+          <p class="price">$${Number(c.price).toLocaleString()}</p>
+        </div>
+      `;
 
-    let gallery=[], index=0;
+      card.onclick = () => openModal(c);
 
-    function renderThumbs(){
-      thumbsBox.innerHTML='';
-      gallery.forEach((src,i)=>{
-        const t=document.createElement('img');
-        t.src=src; t.alt='Foto '+(i+1); t.loading='lazy';
-        t.className=i===index?'active':'';
-        t.addEventListener('click',()=>setIndex(i));
-        thumbsBox.appendChild(t);
-      });
-    }
+      grid.appendChild(card);
+    });
 
-    function setIndex(i){
-      if(!gallery.length) return;
-      index=(i+gallery.length)%gallery.length;
-      resetZoom();
-      modalImg.src=gallery[index];
-      Array.from(thumbsBox.children).forEach((el,k)=>el.classList.toggle('active',k===index));
-    }
+  }catch(e){
+    console.error(e);
+    grid.innerHTML = "Error cargando inventario.";
+  }
+}
 
-    function fillQuick(metaText){
-      const parts = metaText.split('·').map(s=>s.trim());
-      quickBox.innerHTML = '';
-      const map = [
-        {label:'Motor', value:parts[0]||'—'},
-        {label:'Transmisión', value:parts[1]||'—'},
-        {label:'Kilometraje', value:parts[2]||'—'},
-        {label:'Estado', value:(parts[3]||'—')}
-      ];
-      map.forEach(({label,value})=>{
-        const d=document.createElement('div');
-        d.className='item';
-        d.innerHTML=`<b>${label}</b>${value}`;
-        quickBox.appendChild(d);
-      });
+function openModal(car){
+  document.getElementById("modalTitle").textContent = car.titulo;
+  document.getElementById("modalMeta").textContent = car.meta;
+  document.getElementById("modalDesc").textContent = car.desc;
+  document.getElementById("modalPrice").textContent = "$" + Number(car.price).toLocaleString();
+  document.getElementById("modalImg").src = car.images[0] || "";
+  document.getElementById("modalBackdrop").style.display = "flex";
+}
 
-      chipsBox.innerHTML='';
-      parts.slice(3).forEach(p=>{
-        if(!p) return;
-        const c=document.createElement('span');
-        c.className='chip';
-        c.textContent=p;
-        chipsBox.appendChild(c);
-      });
-    }
+function closeModal(){
+  document.getElementById("modalBackdrop").style.display = "none";
+}
 
-    async function openModal({title,meta,desc,price,images}){
-      document.getElementById('modalTitle').textContent=title;
-      document.getElementById('modalMeta').textContent=meta;
-      document.getElementById('modalDesc').textContent=desc;
-      document.getElementById('modalPrice').textContent=price;
+loadInventory();
 
-      fillQuick(meta);
+</script>
 
-      const valid = await loadGallery(images);
-      gallery = valid;
-
-      if (!gallery.length){
-        modalImg.removeAttribute('src');
-        thumbsBox.innerHTML = '<span class="small" style="padding:10px">Sin imágenes disponibles</span>';
-      }else{
-        setIndex(0);
-        renderThumbs();
-      }
-
-      document.getElementById('modalWhats').href=
-        `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent('Hola, quiero reservar: '+title+' ('+price+'). ¿Disponible?')}`;
-
-      backdrop.style.display='flex';
-      requestAnimationFrame(()=>backdrop.querySelector('.modal').classList.add('open'));
-    }
-
-    function closeModal(){
-      const m=backdrop.querySelector('.modal');
-      m.classList.remove('open');
-      setTimeout(()=>backdrop.style.display='none',220);
-    }
-
-    closeBtn.addEventListener('click',closeModal);
-    backdrop.addEventListener('click',e=>{ if(e.target===backdrop) closeModal(); });
-    window.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
-    prevBtn.addEventListener('click',()=>setIndex(index-1));
-    nextBtn.addEventListener('click',()=>setIndex(index+1));
-
-    // ZOOM
-    let scale=1, minScale=1, maxScale=4, tx=0, ty=0;
-    let isDragging=false, startX=0, startY=0, lastTouchTime=0;
-
-    function applyTransform(){
-      modalImg.style.transform=`translate(${tx}px, ${ty}px) scale(${scale})`;
-      if(scale>1){viewer.classList.add('zoomed');}else{viewer.classList.remove('zoomed');}
-    }
-    function resetZoom(){ scale=1; tx=0; ty=0; applyTransform(); }
-    function zoomAt(x,y,ds){
-      const r=modalImg.getBoundingClientRect(),
-            cx=x-(r.left+r.width/2),
-            cy=y-(r.top+r.height/2);
-      const ns=Math.min(maxScale,Math.max(minScale,scale*ds));
-      tx = tx - (cx/scale - cx/ns);
-      ty = ty - (cy/scale - cy/ns);
-      scale=ns; applyTransform();
-    }
-    modalImg.addEventListener('dblclick',e=>{ e.preventDefault(); scale===1?zoomAt(e.clientX,e.clientY,2.5):resetZoom(); });
-    modalImg.addEventListener('touchstart',e=>{
-      const now=Date.now();
-      if(now-lastTouchTime<300){
-        e.preventDefault();
-        const t=e.touches[0];
-        scale===1?zoomAt(t.clientX,t.clientY,2.5):resetZoom();
-      }
-      lastTouchTime=now;
-    },{passive:false});
-    viewer.addEventListener('wheel',e=>{ e.preventDefault(); zoomAt(e.clientX,e.clientY,(e.deltaY<0?1.15:0.87)); },{passive:false});
-    function startDrag(x,y){ if(scale<=1) return; isDragging=true; startX=x-tx; startY=y-ty; modalImg.style.cursor='grabbing'; }
-    function moveDrag(x,y){ if(!isDragging) return; tx=x-startX; ty=y-startY; applyTransform(); }
-    function endDrag(){ isDragging=false; modalImg.style.cursor='grab'; }
-    modalImg.addEventListener('mousedown',e=>startDrag(e.clientX,e.clientY));
-    window.addEventListener('mousemove',e=>moveDrag(e.clientX,e.clientY));
-    window.addEventListener('mouseup',endDrag);
-    modalImg.addEventListener('touchstart',e=>{ if(e.touches.length!==1) return; const t=e.touches[0]; startDrag(t.clientX,t.clientY); },{passive:false});
-    modalImg.addEventListener('touchmove',e=>{ if(!isDragging||e.touches.length!==1) return; const t=e.touches[0]; moveDrag(t.clientX,t.clientY); },{passive:false});
-    modalImg.addEventListener('touchend',endDrag);
-
-    // INVENTARIO
-    async function loadInventoryFromSheet(){
-      const grid = document.getElementById("vehicleGrid");
-      grid.innerHTML = `<div class="small" style="padding:10px">Cargando vehículos...</div>`;
-
-      let cars = [];
-      try{
-        const res = await fetch(API_URL, { cache: "no-store" });
-        cars = await res.json();
-      }catch(e){
-        console.error(e);
-        grid.innerHTML = `<div class="small" style="padding:10px;color:#ffb4b4">Error cargando inventario. Revisa el /exec.</div>`;
-        return;
-      }
-
-      grid.innerHTML = "";
-
-      cars.forEach(c=>{
-        const priceText = (typeof c.price === "number")
-          ? `$${c.price.toLocaleString()}`
-          : String(c.price || "").trim();
-
-        const title = String(c.titulo || c.title || "").trim();
-        const meta  = String(c.meta || "").trim();
-        const desc  = String(c.desc || "").trim();
-        const badge = String(c.badge || "Disponible").trim();
-
-        const images = Array.isArray(c.images) ? c.images : [];
-        const firstImage = images[0] || "";
-
-        const card = document.createElement("article");
-        card.className = "card";
-        card.dataset.title = title;
-        card.dataset.price = priceText;
-        card.dataset.meta  = meta;
-        card.dataset.desc  = desc;
-        card.dataset.images = images.join(", ");
-
-        card.innerHTML = `
-          <div class="thumb">
-            <span class="badge">${badge}</span>
-            <img src="${firstImage}" alt="${title}" loading="lazy">
-          </div>
-          <div class="card-body">
-            <h3>${title}</h3>
-            <p class="meta">${meta}</p>
-            <p class="price">${priceText}</p>
-          </div>
-        `;
-
-        card.addEventListener("click", async ()=>{
-          const imgs=(card.dataset.images||'').split(',').map(s=>s.trim()).filter(Boolean);
-          await openModal({ title, meta, desc, price: priceText, images: imgs });
-        });
-
-        grid.appendChild(card);
-      });
-
-      if(!cars.length){
-        grid.innerHTML = `<div class="small" style="padding:10px">No hay vehículos activos.</div>`;
-      }
-    }
-
-    loadInventoryFromSheet();
-  </script>
 </body>
 </html>
