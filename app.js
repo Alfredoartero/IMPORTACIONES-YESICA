@@ -19,6 +19,19 @@ const CAM = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke=
 const pad = n => String(n).padStart(2, "0");
 const hdr = $("hdr");
 
+/* ---- Siempre abrir arriba (el navegador no recuerda dónde te quedaste) ---- */
+if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+(() => {
+  const goTop = () => {
+    const target = location.hash && document.querySelector(location.hash);
+    if (target) target.scrollIntoView({block: "start"});
+    else window.scrollTo(0, 0);
+  };
+  goTop();
+  addEventListener("load", goTop);
+  addEventListener("pageshow", e => { if (e.persisted) goTop(); });
+})();
+
 /* ---- Datos ---- */
 const cars = (window.AUTOS || []).map((a, order) => {
   const images = (a.fotos || []).filter(Boolean);
