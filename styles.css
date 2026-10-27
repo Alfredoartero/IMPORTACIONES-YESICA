@@ -631,3 +631,20 @@ header .mobile{position:absolute;left:12px;right:12px;top:calc(100% - 4px);margi
 @media (max-width:760px){
   .hero-slides img{object-position:18% center}
 }
+
+/* ===== Entregados (referencias) ===== */
+.done-card .c-media{margin:0;border-radius:var(--radius) var(--radius) 0 0;aspect-ratio:4/3;transform:none}
+.done-card:hover .c-media img{transform:scale(1.06)}
+.done-badge{position:absolute;left:14px;top:14px;z-index:2;display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:.04em;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.done-badge.cliente{background:rgba(219,39,119,.88);color:#fff}
+.done-badge.vendido{background:rgba(11,12,16,.7);color:#fff;border:1px solid var(--ring-2)}
+.done-body{padding:18px 20px 20px}
+.done-body h3{margin:0 0 8px;font-family:var(--display);font-weight:500;font-size:18px;letter-spacing:-.02em}
+.done-meta{display:flex;flex-wrap:wrap;gap:6px 14px;color:var(--muted);font-size:13px}
+.done-meta span{display:inline-flex;align-items:center;gap:6px}
+.done-meta .dm-date::before,.done-meta .dm-place::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--brand)}
+.done-meta .dm-place::before{background:var(--muted)}
+#deliveredRow{grid-auto-columns:calc((100% - 66px)/4)}
+.seg-sm button{padding:9px 14px;font-size:13px}
+@media (max-width:1060px){#deliveredRow{grid-auto-columns:calc((100% - 22px)/2)}}
+@media (max-width:640px){#deliveredRow{grid-auto-columns:72%}}

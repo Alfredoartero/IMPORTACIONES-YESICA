@@ -284,6 +284,129 @@ if (grid) {
   new IntersectionObserver(([e]) => ctl.classList.toggle("stuck", !e.isIntersecting), {rootMargin:"-100px 0px 0px 0px"}).observe(sentinel);
 }
 
+/* ---- ENTREGADOS: traídos para clientes y vendidos ---- */
+const TIPO = { cliente: "Traído para cliente", vendido: "Vendido" };
+const delivered = (window.ENTREGADOS || []).map((d, order) => {
+  const images = (d.fotos || []).filter(Boolean);
+  const name = d.nombre || "Vehículo";
+  const tipo = d.tipo === "vendido" ? "vendido" : "cliente";
+  return {
+    tipo, order, images, name, title: name,
+    brand: TIPO[tipo], badge: TIPO[tipo],
+    price: d.fecha || (tipo === "vendido" ? "Vendido" : "Entregado"),
+    priceLabel: tipo === "vendido" ? "Vendido en" : "Entregado en",
+    fecha: d.fecha || "", lugar: d.lugar || "",
+    parts: ["", "", "", "", d.lugar || ""],
+    specList: [["cal", "Fecha", d.fecha], ["pin", "Lugar", d.lugar], ["miles", "Millaje", d.millaje], ["user", "Tipo", TIPO[tipo]]],
+    desc: d.nota || "",
+    detailsTitle: "Detalles",
+    note: "¿Quieres uno similar? Te lo buscamos en subasta.",
+    cta: "Quiero uno similar",
+    waMsg: `Hola, vi el ${name} que ${tipo === "vendido" ? "vendieron" : "le trajeron a un cliente"}. Quiero uno similar.`,
+    cover: images[0] ? normalizeSrc(images[0]) : ""
+  };
+});
+document.querySelectorAll(".js-dcount").forEach(el => el.textContent = delivered.length);
+if (!delivered.length) document.querySelectorAll(".js-needs-delivered").forEach(el => el.remove());
+
+const CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="12" height="12"><path d="m5 12 5 5 9-10"/></svg>';
+function buildDeliveredCard(d){
+  const card = document.createElement("article");
+  card.className = "card done-card";
+  card.innerHTML = `
+    <div class="c-media">
+      <span class="done-badge ${d.tipo}">${CHECK}<span></span></span>
+      <span class="photo-count">${CAM}${d.images.length}</span>
+    </div>
+    <div class="done-body">
+      <h3></h3>
+      <div class="done-meta"><span class="dm-date"></span><span class="dm-place"></span></div>
+    </div>`;
+  card.querySelector(".done-badge span").textContent = d.badge;
+  card.querySelector("h3").textContent = d.name;
+  card.querySelector(".dm-date").textContent = d.fecha;
+  card.querySelector(".dm-place").textContent = d.lugar;
+  if (!d.fecha) card.querySelector(".dm-date").remove();
+  if (!d.lugar) card.querySelector(".dm-place").remove();
+  const media = card.querySelector(".c-media");
+  if (d.images.length < 2) media.querySelector(".photo-count").remove();
+  const noPhoto = () => { const x = document.createElement("div"); x.className = "no-photo"; x.textContent = "Foto próximamente"; return x; };
+  if (d.cover) { const img = document.createElement("img"); img.alt = d.name; img.loading = "lazy"; media.prepend(img); loadFirst(img, d.images, () => img.replaceWith(noPhoto())); }
+  else media.prepend(noPhoto());
+  card.tabIndex = 0; card.setAttribute("role", "button"); card.setAttribute("aria-label", "Ver " + d.name);
+  card.addEventListener("click", () => openModal(d));
+  card.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openModal(d); } });
+  d.card = card;
+  return card;
+}
+
+/* Botones tipo píldora con indicador deslizante */
+function makeSeg(seg, options, current, onChange){
+  const pill = seg.querySelector(".seg-pill");
+  options.forEach(([key, label, count]) => {
+    const b = document.createElement("button"); b.dataset.key = key;
+    b.innerHTML = `<span></span><small>${count}</small>`; b.querySelector("span").textContent = label;
+    if (key === current) b.classList.add("on");
+    b.addEventListener("click", () => { seg.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b)); move(); onChange(key); });
+    seg.appendChild(b);
+  });
+  function move(){ const on = seg.querySelector("button.on"); if (!on) return; pill.style.width = on.offsetWidth + "px"; pill.style.transform = `translateX(${on.offsetLeft}px)`; }
+  addEventListener("resize", move); setTimeout(move, 60); document.fonts && document.fonts.ready.then(move);
+}
+const tipoOptions = () => {
+  const n = t => delivered.filter(d => d.tipo === t).length;
+  return [["all", "Todos", delivered.length], ["cliente", "Para clientes", n("cliente")], ["vendido", "Vendidos", n("vendido")]].filter(o => o[0] === "all" || o[2] > 0);
+};
+function showFiltered(container, list, key){
+  list.forEach(d => d.card.style.display = "none");
+  list.filter(d => key === "all" || d.tipo === key).forEach((d, i) => {
+    d.card.style.display = ""; d.card.classList.remove("pop"); void d.card.offsetWidth;
+    d.card.style.animationDelay = (i * 60) + "ms"; d.card.classList.add("pop");
+  });
+  container.scrollLeft = 0;
+}
+
+// Inicio: fila de entregas
+const dRow = $("deliveredRow");
+if (dRow && delivered.length) {
+  delivered.slice(0, 8).forEach(d => dRow.appendChild(buildDeliveredCard(d)));
+  if (delivered.length > 8) {
+    const more = document.createElement("a"); more.href = "entregados.html"; more.className = "row-more";
+    more.innerHTML = `<div><div class="rm-count">${delivered.length}</div><div class="rm-label">Ver todas las entregas</div><p>Carros traídos para clientes y vendidos.</p></div><div class="rm-go"><span>Abrir galería</span><span>${ARROW_UR}</span></div>`;
+    dRow.appendChild(more);
+  }
+  makeSeg($("dSeg"), tipoOptions(), "all", key => showFiltered(dRow, delivered.slice(0, 8), key));
+  const bar = $("dBar");
+  const upd = () => { bar.style.width = Math.min(100, (dRow.scrollLeft + dRow.clientWidth) / dRow.scrollWidth * 100) + "%"; };
+  dRow.addEventListener("scroll", upd, {passive:true}); addEventListener("resize", upd); setTimeout(upd, 120);
+  ["touchstart", "pointerdown", "wheel"].forEach(ev => dRow.addEventListener(ev, () => dRow.classList.add("snap"), {passive:true, once:true}));
+  if (finePointer) {
+    let down = false, sx = 0, sl = 0, moved = false;
+    dRow.addEventListener("mousedown", e => { down = true; moved = false; sx = e.clientX; sl = dRow.scrollLeft; dRow.style.scrollSnapType = "none"; dRow.style.scrollBehavior = "auto"; });
+    addEventListener("mousemove", e => { if (!down) return; const dx = e.clientX - sx; if (Math.abs(dx) > 5) moved = true; dRow.scrollLeft = sl - dx; });
+    addEventListener("mouseup", () => { if (!down) return; down = false; dRow.style.scrollSnapType = ""; dRow.style.scrollBehavior = ""; });
+    dRow.addEventListener("click", e => { if (moved) { e.stopPropagation(); e.preventDefault(); moved = false; } }, true);
+  }
+}
+
+// Página de entregas
+const dGrid = $("deliveredGrid");
+if (dGrid) {
+  if (!delivered.length) {
+    dGrid.innerHTML = '<div class="empty"><b>Muy pronto</b>Aquí vas a ver los carros que ya entregamos a nuestros clientes.</div>';
+    $("dSegWrap") && $("dSegWrap").remove();
+  } else {
+    delivered.forEach(d => dGrid.appendChild(buildDeliveredCard(d)));
+    const params = new URLSearchParams(location.search);
+    const start = ["cliente", "vendido"].includes(params.get("tipo")) ? params.get("tipo") : "all";
+    makeSeg($("dSeg"), tipoOptions(), start, key => {
+      showFiltered(dGrid, delivered, key);
+      history.replaceState(null, "", location.pathname + (key !== "all" ? "?tipo=" + key : ""));
+    });
+    showFiltered(dGrid, delivered, start);
+  }
+}
+
 /* ---- Franja ---- */
 if ($("tickerTrack")) {
   const brandNames = [...new Set(cars.map(c => c.brand))];
@@ -425,6 +548,9 @@ const counter = $("counter"), progressBar = $("progressBar");
 let gallery = [], index = 0, modalOpen = false;
 
 const SPEC_ICONS = {
+  cal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
+  pin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>',
+  user:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>',
   motor:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 10h3l2-3h6l2 3h3v7H4z"/><path d="M8 17v2M16 17v2M2 12v3M22 12v3"/></svg>',
   trans:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="2"/><circle cx="12" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="12" cy="18" r="2"/><path d="M6 8v8M12 8v8M18 8v4H6"/></svg>',
   miles:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 14l4-4"/><path d="M3.3 17a9 9 0 1 1 17.4 0"/></svg>',
@@ -474,6 +600,11 @@ function fillInfo(car){
   $("modalTitle").textContent = car.title;
   $("modalBadge").textContent = car.badge;
   $("modalPrice").textContent = car.price;
+  $("modalPriceLabel").textContent = car.priceLabel || "Precio";
+  $("modalNote").textContent = car.note || "Pregunta por disponibilidad y tiempos de entrega.";
+  $("modalCta").textContent = car.cta || "Reservar por WhatsApp";
+  $("modalDetailsTitle").textContent = car.detailsTitle || "Detalles de subasta";
+  $("modalDetailsTitle").style.display = car.desc ? "" : "none";
 
   const chips = $("modalChips"); chips.innerHTML = "";
   const addChip = (txt, cls) => { if (!txt) return; const c = document.createElement("span"); c.className = "chip" + (cls ? " " + cls : ""); c.textContent = txt; chips.appendChild(c); };
@@ -481,7 +612,7 @@ function fillInfo(car){
   p.slice(4).forEach(x => addChip(x, "neutral"));
 
   const specs = $("modalSpecs"); specs.innerHTML = "";
-  [["motor","Motor",p[0]],["trans","Transmisión",p[1]],["miles","Millaje",p[2]],["cond","Condición",p[3]]].forEach(([ic, label, val]) => {
+  (car.specList || [["motor","Motor",p[0]],["trans","Transmisión",p[1]],["miles","Millaje",p[2]],["cond","Condición",p[3]]]).forEach(([ic, label, val]) => {
     const d = document.createElement("div"); d.className = "m-spec";
     d.innerHTML = `<span class="ic">${SPEC_ICONS[ic]}</span><span><small></small><b></b></span>`;
     d.querySelector("small").textContent = label;
@@ -509,7 +640,7 @@ function fillInfo(car){
     ul.appendChild(li);
   });
 
-  $("modalWhats").href = waUrl(WA_MAIN, `Hola, quiero reservar: ${car.title} (${car.price}). ¿Sigue disponible?`);
+  $("modalWhats").href = waUrl(WA_MAIN, car.waMsg || `Hola, quiero reservar: ${car.title} (${car.price}). ¿Sigue disponible?`);
 }
 
 async function openModal(car){

@@ -105,3 +105,30 @@ window.AUTOS = [
     fotos: serie("kia rio rojo/rio", 1, 12)
   }
 ];
+
+/* =========================================================
+   VEHÍCULOS ENTREGADOS (referencias)
+   ---------------------------------------------------------
+   Carros que ya trajeron para clientes o que ya vendieron.
+   Se muestran en la sección "Entregados" del inicio y en
+   entregados.html. Si la lista está vacía, la sección no sale.
+
+   tipo:  "cliente"  = traído para un cliente (búsqueda personalizada)
+          "vendido"  = vendido del inventario
+
+   Copia el bloque de ejemplo, quítale las // y cambia los datos:
+
+  {
+    nombre: "Toyota Corolla LE 2019",
+    tipo: "cliente",
+    fecha: "Septiembre 2026",
+    lugar: "Ahuachapán",
+    millaje: "68,000 mi",
+    nota: "Búsqueda personalizada. El cliente pidió un Corolla automático con menos de 70,000 millas.",
+    fotos: serie("entregados/corolla 2019/foto", 1, 6)
+  },
+   ========================================================= */
+
+window.ENTREGADOS = [
+
+];

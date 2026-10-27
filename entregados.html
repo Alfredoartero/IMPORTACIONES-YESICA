@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Entregados | Importaciones Yesica</title>
+  <meta name="description" content="Importación de vehículos de subasta desde Estados Unidos a El Salvador. Mira el inventario y reserva por WhatsApp.">
+  <meta name="theme-color" content="#0b0c10">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=10">
+</head>
+<body>
+  <div class="grain"></div>
+  <div class="cursor-glow" id="glow"></div>
+  <div class="road" id="road"></div>
+
+  <!-- Header -->
+  <header id="hdr">
+    <div class="nav">
+      <a href="index.html" class="brand-name">IMPORTACIONES <span>YESICA</span></a>
+      <nav>
+        <ul>
+          <li><a href="inventario.html">Inventario</a></li>
+          <li class="js-needs-delivered"><a href="entregados.html">Entregados</a></li>
+          <li><a href="index.html#busqueda">Búsqueda personalizada</a></li>
+          <li><a href="index.html#como-funciona">Proceso</a></li>
+          <li><a href="index.html#contacto">Contacto</a></li>
+        </ul>
+      </nav>
+      <div class="nav-right">
+        <a class="btn btn-wa btn-sm js-wa magnetic" href="#" target="_blank" rel="noopener" aria-label="WhatsApp">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#wa-icon"/></svg>
+          <span class="txt">WhatsApp</span>
+        </a>
+        <button class="menu-btn" id="toggleMenu" aria-label="Abrir menú" aria-expanded="false"><span></span></button>
+      </div>
+    </div>
+    <div class="mobile" id="mobileNav">
+      <a href="inventario.html">Inventario</a>
+      <a class="js-needs-delivered" href="entregados.html">Entregados</a>
+      <a href="index.html#busqueda">Búsqueda personalizada</a>
+      <a href="index.html#como-funciona">Proceso</a>
+      <a href="index.html#contacto">Contacto</a>
+    </div>
+  </header>
+
+  <!-- ENTREGADOS -->
+  <section class="page-hero">
+    <div class="container">
+      <a href="index.html" class="back fade-up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>Volver al inicio</a>
+      <p class="kicker left fade-up" style="transition-delay:.1s">Referencias</p>
+      <h1 class="display split-words">Carros <em>entregados</em></h1>
+      <p class="lead fade-up" style="transition-delay:.6s">Vehículos que trajimos para nuestros clientes y que ya vendimos. Toca uno para ver todas sus fotos.</p>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:10px">
+    <div class="container">
+      <div class="controls fade-up" id="dSegWrap" style="transition-delay:.7s">
+        <div class="seg" id="dSeg"><span class="seg-pill"></span></div>
+      </div>
+      <div class="grid" id="deliveredGrid"></div>
+      <div class="inv-cta">
+      <div class="cta reveal">
+        <div class="blob b1"></div><div class="blob b2"></div>
+        <p class="kicker">Hablemos</p>
+        <h2 class="display">¿Quieres uno <em>así?</em></h2>
+        <p>Dinos qué carro buscas y te lo traemos de subasta, dentro de tu presupuesto.</p>
+        <div class="actions">
+          <a class="btn btn-wa magnetic js-wa-search" href="#" target="_blank" rel="noopener"><svg class="icon-svg" viewBox="0 0 24 24" fill="currentColor"><use href="#wa-icon"/></svg>Iniciar búsqueda</a>
+          <a class="btn btn-ghost magnetic" href="index.html#como-funciona">Ver el proceso</a>
+        </div>
+      </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <div class="foot-grid">
+        <div>
+          <div class="brand-name">IMPORTACIONES <span>YESICA</span></div>
+          <p>Vehículos de subasta importados desde Estados Unidos hasta El Salvador.</p>
+        </div>
+        <div>
+          <h4>Vehículos</h4>
+          <a href="inventario.html">Inventario</a>
+          <a class="js-needs-delivered" href="entregados.html">Entregados</a>
+          <a href="index.html#busqueda">Búsqueda personalizada</a>
+          <a href="index.html#como-funciona">Proceso</a>
+        </div>
+        <div>
+          <h4>Empresa</h4>
+          <a href="index.html#contacto">Contacto</a>
+          <a href="mailto:importacionesyesica@hotmail.com">Correo</a>
+        </div>
+        <div>
+          <h4>WhatsApp</h4>
+          <a class="js-wa js-phone1" href="#" target="_blank" rel="noopener"></a>
+          <a class="js-wa2 js-phone2" href="#" target="_blank" rel="noopener"></a>
+        </div>
+      </div>
+      <div class="big-word" aria-hidden="true">YESICA</div>
+      <div class="foot-bottom">
+        <span>© <span class="js-year"></span> Importaciones Yesica. Todos los derechos reservados.</span>
+        <span>Ahuachapán, El Salvador</span>
+      </div>
+    </div>
+  </footer>
+
+  <a class="wa-float js-wa" href="#" target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp">
+    <svg viewBox="0 0 24 24" fill="currentColor"><use href="#wa-icon"/></svg>
+  </a>
+
+  <!-- VENTANA DE FOTOS -->
+  <div class="modal-backdrop" id="modalBackdrop" aria-hidden="true">
+    <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <span class="grabber"></span>
+      <div class="drag-zone" id="dragZone"></div>
+      <button class="icon-btn close-btn" id="closeModal" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+
+      <div class="viewer" id="viewer">
+        <div class="stage" id="stage">
+          <div class="stage-bg" id="stageBg"></div>
+          <div class="stage-top"><span class="badge" id="modalBadge"></span><span class="counter" id="counter"></span></div>
+          <img id="modalImg" src="" alt="">
+          <button class="icon-btn nav-btn prev" id="prevBtn" aria-label="Foto anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m15 18-6-6 6-6"/></svg></button>
+          <button class="icon-btn nav-btn next" id="nextBtn" aria-label="Foto siguiente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m9 18 6-6-6-6"/></svg></button>
+          <button class="icon-btn fs-btn" id="fsBtn" aria-label="Pantalla completa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+          <div class="progress"><span id="progressBar"></span></div>
+        </div>
+        <div class="thumbs-wrap"><div class="thumbs" id="modalThumbs"></div></div>
+      </div>
+
+      <div class="info">
+        <div class="info-scroll">
+          <p class="m-kicker" id="modalBrand">Vehículo</p>
+          <h3 class="m-title display" id="modalTitle">Vehículo</h3>
+          <div class="chips" id="modalChips"></div>
+          <div class="m-specs" id="modalSpecs"></div>
+          <p class="m-section" id="modalDetailsTitle">Detalles de subasta</p>
+          <ul class="details" id="modalDetails"></ul>
+          <div class="hint"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5M11 8v6M8 11h6"/></svg>Doble clic o doble toque en la foto para acercar.</div>
+        </div>
+        <div class="info-foot">
+          <div class="foot-row">
+            <div><div class="price-label" id="modalPriceLabel">Precio</div><div class="price-big" id="modalPrice">$0</div></div>
+            <div class="foot-note" id="modalNote">Pregunta por disponibilidad y tiempos de entrega.</div>
+          </div>
+          <a id="modalWhats" class="btn btn-wa" target="_blank" rel="noopener" href="#">
+            <svg class="icon-svg" viewBox="0 0 24 24" fill="currentColor"><use href="#wa-icon"/></svg>
+            <span id="modalCta">Reservar por WhatsApp</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="wa-icon" viewBox="0 0 24 24"><path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.8.9-.9 1.1-.2.2-.3.2-.6.1-.3-.1-1.2-.5-2.3-1.4-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6l.4-.5c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.6-.1 1.7-.7 1.9-1.4.2-.7.2-1.2.2-1.4-.1-.1-.3-.2-.6-.3zM12 21.8c-1.8 0-3.5-.5-5-1.4l-.4-.2-3.7 1 1-3.6-.2-.4C2.7 15.6 2.2 13.8 2.2 12 2.2 6.6 6.6 2.2 12 2.2c2.6 0 5.1 1 6.9 2.9 1.8 1.8 2.9 4.3 2.9 6.9 0 5.4-4.4 9.8-9.8 9.8zM20.5 3.5C18.2 1.2 15.2 0 12 0 5.4 0 0 5.4 0 12c0 2.1.6 4.2 1.6 6L0 24l6.2-1.6c1.8 1 3.8 1.5 5.8 1.5 6.6 0 12-5.4 12-12 0-3.2-1.2-6.2-3.5-8.4z"/></symbol>
+  </svg>
+
+
+
+  <script src="autos.js?v=10"></script>
+  <script src="app.js?v=10"></script>
+</body>
+</html>
