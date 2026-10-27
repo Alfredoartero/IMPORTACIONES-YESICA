@@ -186,9 +186,18 @@ function buildCard(car){
   return card;
 }
 
+/* ---- Sin carros todavía ---- */
+const EMPTY_HTML = `<div class="empty"><b>Muy pronto, nuevos vehículos</b>Estamos preparando el inventario. Escríbenos por WhatsApp y te contamos qué viene en camino.</div>`;
+if (!cars.length) {
+  document.querySelectorAll(".slide-card, .stories, .row-actions .round, #vehiculos .row-foot, #vehiculos .row-head .lead").forEach(el => el.style.display = "none");
+  document.querySelectorAll('[data-count="auto"]').forEach(el => el.closest("div").style.display = "none");
+  const numbers = $("numbers"); if (numbers) numbers.classList.add("three");
+}
+
 /* ---- INICIO: una sola fila ---- */
 const row = $("previewRow");
-if (row) {
+if (row && !cars.length) { row.outerHTML = EMPTY_HTML; }
+else if (row) {
   const MAX = 6;
   cars.slice(0, MAX).forEach(c => row.appendChild(buildCard(c)));
   const more = document.createElement("a");
@@ -232,7 +241,8 @@ if (row) {
 
 /* ---- INVENTARIO: filtros, buscador y orden ---- */
 const grid = $("grid");
-if (grid) {
+if (grid && !cars.length) { grid.innerHTML = EMPTY_HTML; $("controls") && ($("controls").style.display = "none"); $("resultCount") && ($("resultCount").closest("p").style.display = "none"); }
+else if (grid) {
   cars.forEach(c => grid.appendChild(buildCard(c)));
   const seg = $("seg"), pill = $("segPill");
   const brands = {}; cars.forEach(c => brands[c.brand] = (brands[c.brand] || 0) + 1);

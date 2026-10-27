@@ -658,3 +658,8 @@ header .mobile{position:absolute;left:12px;right:12px;top:calc(100% - 4px);margi
 .pub-toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);z-index:300;background:#fff;color:#0b0c10;font-weight:600;font-size:14px;padding:12px 18px;border-radius:12px;box-shadow:0 20px 40px rgba(0,0,0,.4);opacity:0;transition:all .35s var(--ease);pointer-events:none;max-width:90vw;text-align:center}
 .pub-toast.show{opacity:1;transform:translateX(-50%)}
 .m-actions.one{grid-template-columns:1fr}
+
+/* Sin carros: portada y collage con fondo de marca */
+.numbers.three{grid-template-columns:repeat(3,1fr)}
+@media (max-width:640px){.numbers.three{grid-template-columns:1fr 1fr 1fr}}
+.col-main,.col-mini{background:radial-gradient(120% 100% at 80% 0%,rgba(219,39,119,.35),transparent 60%),radial-gradient(90% 90% at 0% 100%,rgba(124,58,237,.25),transparent 60%),var(--panel)}
