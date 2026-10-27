@@ -27,12 +27,9 @@ service cloud.firestore {
 }
 ```
 
-## Storage (pendiente: requiere plan Blaze)
+## Storage (activado en US-EAST1, plan Blaze con alerta de $1)
 
-1. Firebase → **Storage → Actualizar proyecto** → plan **Blaze** (sigue gratis hasta 5 GB).
-   Recomendado: en Google Cloud → Facturación → Presupuestos, crea una alerta de **$1**.
-2. **Storage → Comenzar** (ubicación US, modo producción).
-3. **Storage → Reglas**, reemplaza todo por esto y toca **Publicar**:
+Reglas publicadas (con el permiso "Aprovisionar reglas entre servicios" aceptado):
 
 ```
 rules_version = '2';
