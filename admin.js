@@ -205,7 +205,7 @@ const FIELDS = {
     { k: "nombre", l: "Marca, modelo y año", ph: "Hyundai Elantra SE 2018", req: true },
     { k: "color", l: "Color", ph: "Blanco" },
     { k: "precio", l: "Precio", ph: "$6,500  (o “Consultar”)" },
-    { k: "estado", l: "Estado (etiqueta)", type: "select", opts: ["En camino", "Para reparar", "En bodega", "Reparado", "Disponible"] },
+    { k: "estado", l: "Estado (etiqueta)", type: "select", opts: ["En camino", "Para reparar", "En aduana", "Reparado", "Disponible"] },
     { k: "motor", l: "Motor", ph: "2.0L" },
     { k: "transmision", l: "Transmisión", ph: "Automático" },
     { k: "millaje", l: "Millaje", ph: "85,000 mi" },
