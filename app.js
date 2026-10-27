@@ -18,6 +18,8 @@ const ARROW_UR = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
 const CAM = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="12" cy="13" r="3.5"/><path d="M8 6l1.5-2h5L16 6"/></svg>';
 const pad = n => String(n).padStart(2, "0");
 const hdr = $("hdr");
+// Franja oscura en el borde inferior (evita que Safari pinte su barra de verde)
+document.body.appendChild(Object.assign(document.createElement("div"), { className: "edge-tint", ariaHidden: "true" }));
 const DEEP = (() => { const p = new URLSearchParams(location.search); return { auto: p.get("auto"), entrega: p.get("entrega") }; })();
 
 /* ---- Siempre abrir arriba (el navegador no recuerda dónde te quedaste) ---- */

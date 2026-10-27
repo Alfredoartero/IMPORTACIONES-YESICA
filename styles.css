@@ -687,3 +687,13 @@ header .mobile{position:absolute;left:12px;right:12px;top:calc(100% - 4px);margi
   .m-actions .btn{padding:9px 10px}
   .info-foot > .btn{padding:12px}
 }
+
+/* v7.1: Safari (iPhone) pinta la barra inferior con el color de lo que toca el borde.
+   Esta franja oscura evita que tome el verde de los botones de WhatsApp. */
+.edge-tint{position:fixed;left:0;right:0;bottom:0;height:3px;background:var(--bg);z-index:250;pointer-events:none}
+html,body{background-color:var(--bg)}
+@media (max-width:860px){
+  .wa-float{bottom:calc(22px + env(safe-area-inset-bottom))}
+  .info-foot{padding-bottom:calc(16px + env(safe-area-inset-bottom))}
+}
+body:has(.modal-backdrop.show) .wa-float{opacity:0;pointer-events:none}
