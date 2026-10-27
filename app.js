@@ -18,6 +18,7 @@ const ARROW_UR = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
 const CAM = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="12" cy="13" r="3.5"/><path d="M8 6l1.5-2h5L16 6"/></svg>';
 const pad = n => String(n).padStart(2, "0");
 const hdr = $("hdr");
+const DEEP = (() => { const p = new URLSearchParams(location.search); return { auto: p.get("auto"), entrega: p.get("entrega") }; })();
 
 /* ---- Siempre abrir arriba (el navegador no recuerda dónde te quedaste) ---- */
 if ("scrollRestoration" in history) history.scrollRestoration = "manual";
@@ -33,6 +34,8 @@ if ("scrollRestoration" in history) history.scrollRestoration = "manual";
 })();
 
 /* ---- Datos ---- */
+const slugUsed = {};
+const slug = s => { let b = String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "auto"; let k = b, n = 2; while (slugUsed[k]) k = b + "-" + n++; slugUsed[k] = 1; return k; };
 const cars = (window.AUTOS || []).map((a, order) => {
   const images = (a.fotos || []).filter(Boolean);
   const name = a.nombre || "Vehículo";
@@ -40,6 +43,7 @@ const cars = (window.AUTOS || []).map((a, order) => {
   const price = a.precio || "Consultar";
   const parts = [a.motor, a.transmision, a.millaje, a.condicion, a.titulo].map(x => (x || "").trim());
   return {
+    id: a.id || slug(title), copart: a.copart || "", kind: "auto",
     images, parts, title, name, price, order,
     brand: name.split(" ")[0] || "Otros",
     year: +(name.match(/\b(19|20)\d{2}\b/) || [0])[0],
@@ -294,6 +298,7 @@ const delivered = deliveredSrc.map((d, order) => {
   const name = d.nombre || "Vehículo";
   const tipo = d.tipo === "vendido" ? "vendido" : "cliente";
   return {
+    id: d.id || slug("entrega " + name + " " + (d.fecha || "")), copart: d.copart || "", kind: "entrega",
     tipo, order, images, name, title: name,
     brand: TIPO[tipo], badge: (usingDemo ? "Ejemplo · " : "") + TIPO[tipo],
     price: d.fecha || (tipo === "vendido" ? "Vendido" : "Entregado"),
@@ -549,6 +554,24 @@ if ($("numbers")) {
 
 
     /* ======== VENTANA DE FOTOS ======== */
+let currentShareCar = null;
+function shareUrl(car){
+  const base = location.href.replace(/[^/]*([?#].*)?$/, "");
+  return base + (car.kind === "entrega" ? "entregados.html?entrega=" : "inventario.html?auto=") + encodeURIComponent(car.id);
+}
+function toastMsg(t){
+  let el = document.getElementById("pubToast");
+  if (!el) { el = document.createElement("div"); el.id = "pubToast"; el.className = "pub-toast"; document.body.appendChild(el); }
+  el.textContent = t; el.classList.add("show"); clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove("show"), 2600);
+}
+document.addEventListener("click", async e => {
+  if (!e.target.closest("#modalShare") || !currentShareCar) return;
+  const car = currentShareCar, url = shareUrl(car);
+  const text = `${car.title}${car.price && car.kind === "auto" ? " · " + car.price : ""} — Importaciones Yesica`;
+  if (navigator.share) { try { await navigator.share({ title: car.title, text, url }); return; } catch (err) { if (err.name === "AbortError") return; } }
+  try { await navigator.clipboard.writeText(url); toastMsg("Link copiado. Pégalo en WhatsApp o donde quieras."); }
+  catch (err) { prompt("Copia este link:", url); }
+});
 const backdrop = $("modalBackdrop"), modalEl = $("modal");
 const modalImg = $("modalImg"), viewer = $("viewer"), stage = $("stage"), stageBg = $("stageBg");
 const thumbsBox = $("modalThumbs"), prevBtn = $("prevBtn"), nextBtn = $("nextBtn");
@@ -648,6 +671,9 @@ function fillInfo(car){
     ul.appendChild(li);
   });
 
+  const cop = $("modalCopart");
+  if (cop) { cop.style.display = car.copart ? "" : "none"; cop.href = car.copart || "#"; cop.parentElement.classList.toggle("one", !car.copart); }
+  currentShareCar = car;
   $("modalWhats").href = waUrl(WA_MAIN, car.waMsg || `Hola, quiero reservar: ${car.title} (${car.price}). ¿Sigue disponible?`);
 }
 
@@ -746,3 +772,12 @@ modalImg.addEventListener("touchend", e => {
   swipeX = null; dragging = false;
 });
 
+
+
+/* ---- Abrir un carro directo desde un link compartido (?auto=ID o ?entrega=ID) ---- */
+(() => {
+  const id = DEEP.auto, eid = DEEP.entrega;
+  const target = id ? cars.find(c => c.id === id) : (eid ? delivered.find(d => d.id === eid) : null);
+  if ((id || eid) && !target) { setTimeout(() => toastMsg("Ese carro ya no está disponible. Mira los demás."), 900); return; }
+  if (target) setTimeout(() => openModal(target), document.getElementById("loader") ? 1600 : 400);
+})();
