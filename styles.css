@@ -626,3 +626,8 @@ header .mobile{position:absolute;left:12px;right:12px;top:calc(100% - 4px);margi
   .search input{padding-right:12px}
   .sort select{width:100%}
 }
+
+/* v6.3: en celular, la foto de la portada enfocada hacia el frente del carro (izquierda) */
+@media (max-width:760px){
+  .hero-slides img{object-position:18% center}
+}
