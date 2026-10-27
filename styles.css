@@ -663,3 +663,27 @@ header .mobile{position:absolute;left:12px;right:12px;top:calc(100% - 4px);margi
 .numbers.three{grid-template-columns:repeat(3,1fr)}
 @media (max-width:640px){.numbers.three{grid-template-columns:1fr 1fr 1fr}}
 .col-main,.col-mini{background:radial-gradient(120% 100% at 80% 0%,rgba(219,39,119,.35),transparent 60%),radial-gradient(90% 90% at 0% 100%,rgba(124,58,237,.25),transparent 60%),var(--panel)}
+
+/* v7: en celular, la ventana del carro se desliza completa (foto + datos + descripción) */
+@media (max-width:860px){
+  .modal{display:block;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+  .modal.fs{display:grid;overflow:hidden}
+  .stage{height:40vh;height:40dvh}
+  .info{display:block;min-height:0;border-left:0}
+  .info-scroll{overflow:visible;padding:20px 18px 18px}
+  .m-title{font-size:21px}
+  .m-specs{gap:6px;margin-bottom:20px}
+  .m-spec{padding:10px}
+  .details li{font-size:14px;padding:11px 0}
+  .details li b{max-width:60%}
+  .details li.note{font-size:14px}
+  .hint{display:none}
+  .info-foot{position:sticky;bottom:0;z-index:4;padding:10px 14px calc(10px + env(safe-area-inset-bottom));box-shadow:0 -14px 30px rgba(0,0,0,.45)}
+  .foot-row{margin-bottom:8px;align-items:center}
+  .foot-note{display:none}
+  .price-label{font-size:10px}
+  .price-big{font-size:22px}
+  .m-actions{margin-bottom:8px}
+  .m-actions .btn{padding:9px 10px}
+  .info-foot > .btn{padding:12px}
+}

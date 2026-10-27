@@ -667,11 +667,11 @@ function fillInfo(car){
 
   // Observaciones -> filas "Etiqueta: valor"
   const ul = $("modalDetails"); ul.innerHTML = "";
-  car.desc.split(/\s[•·]\s|\.\s(?=[A-ZÁÉÍÓÚ])/).map(s => s.trim().replace(/\.$/, "")).filter(Boolean).forEach(seg => {
+  car.desc.split(/\s[•·|]\s|\.\s(?=[A-ZÁÉÍÓÚ✅✔☑])|\s*(?=[✅✔☑])|\n+/).map(s => s.trim().replace(/^[✅✔☑️\s-]+/u, "").replace(/\.$/, "")).filter(Boolean).forEach(seg => {
     const li = document.createElement("li");
     const m = seg.match(/^([^:]{2,28}):\s*(.+)$/);
     if (m) {
-      const s = document.createElement("span"); s.textContent = m[1];
+      const s = document.createElement("span"); s.textContent = /^vin$/i.test(m[1].trim()) ? "VIN" : m[1];
       const b = document.createElement("b"); b.textContent = m[2];
       li.append(s, b);
     } else {
