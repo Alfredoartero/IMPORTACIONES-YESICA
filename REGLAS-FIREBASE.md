@@ -1,51 +1,52 @@
-# Reglas de Firebase para el panel de la página web
+# Firebase de la página web (proyecto `catalogo-yesica`)
 
-El panel (`admin.html`) guarda los carros en **colecciones nuevas** de tu proyecto
-`sistema-yesica`. No toca la colección `vehiculos` del centro de control.
+Separado del centro de control (`sistema-yesica`). Ya quedó configurado:
 
-- `web_autos`: inventario de la página
-- `web_entregados`: carros entregados / vendidos
-- Fotos en Storage: carpeta `web/`
+- **Firestore** (nam5) con colecciones `web_autos`, `web_entregados` y `config/admins`
+- **Login con Google** (solo correos en `config/admins` → `emails`)
+- **Dominio autorizado:** `alfredoartero.github.io`
+- **Reglas de Firestore** publicadas (abajo, como respaldo)
 
-## 1. Firestore → Reglas
+Para agregar o quitar administradores: en el panel, botón **Administradores**.
 
-**No borres tus reglas actuales.** Solo pega este bloque *dentro* de
-`match /databases/{database}/documents { ... }`, junto a las reglas que ya tienes:
+## Reglas de Firestore (ya publicadas)
 
 ```
-    // ===== Página web: cualquiera puede ver, solo administradores editan =====
-    match /web_autos/{id} {
-      allow read: if true;
-      allow write: if request.auth != null
-        && request.auth.token.email in ['alfre@yesica.local', 'yesica@yesica.local'];
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in get(/databases/$(database)/documents/config/admins).data.emails;
     }
-    match /web_entregados/{id} {
-      allow read: if true;
-      allow write: if request.auth != null
-        && request.auth.token.email in ['alfre@yesica.local', 'yesica@yesica.local'];
-    }
+    match /web_autos/{id}      { allow read: if true; allow write: if isAdmin(); }
+    match /web_entregados/{id} { allow read: if true; allow write: if isAdmin(); }
+    match /config/admins       { allow read: if request.auth != null; allow write: if isAdmin(); }
+  }
+}
 ```
 
-Luego toca **Publicar**.
+## Storage (pendiente: requiere plan Blaze)
 
-## 2. Storage → Reglas
-
-Igual: pega este bloque *dentro* de `match /b/{bucket}/o { ... }`, junto a lo que ya tienes:
+1. Firebase → **Storage → Actualizar proyecto** → plan **Blaze** (sigue gratis hasta 5 GB).
+   Recomendado: en Google Cloud → Facturación → Presupuestos, crea una alerta de **$1**.
+2. **Storage → Comenzar** (ubicación US, modo producción).
+3. **Storage → Reglas**, reemplaza todo por esto y toca **Publicar**:
 
 ```
-    // ===== Fotos de la página web =====
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
     match /web/{all=**} {
       allow read: if true;
       allow write: if request.auth != null
-        && request.auth.token.email in ['alfre@yesica.local', 'yesica@yesica.local']
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in firestore.get(/databases/(default)/documents/config/admins).data.emails
         && (request.resource == null
             || (request.resource.size < 10 * 1024 * 1024
                 && request.resource.contentType.matches('image/.*')));
     }
+  }
+}
 ```
-
-Luego toca **Publicar**.
-
-## Agregar otro administrador
-
-Agrega su correo (`usuario@yesica.local`) en las dos reglas y en `ADMINS` dentro de `admin.html`.

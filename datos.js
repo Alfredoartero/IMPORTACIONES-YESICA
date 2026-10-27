@@ -3,8 +3,8 @@
    Si Firebase no responde, se usan los de autos.js.
    ========================================================= */
 (function () {
-  const PROJECT = "sistema-yesica";
-  const API_KEY = "AIzaSyAg4xJoxrfGahtrZeOpnfhCPe0zqNjkGxk";
+  const PROJECT = "catalogo-yesica";
+  const API_KEY = "AIzaSyBa1wCnTDjXPggKWmwoBNCLamLLfvB6Sqw";
   const BASE = `https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents/`;
   const APP_SRC = document.currentScript.getAttribute("data-app");
 
