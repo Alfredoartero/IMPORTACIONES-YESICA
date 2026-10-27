@@ -697,3 +697,11 @@ html,body{background-color:var(--bg)}
   .info-foot{padding-bottom:calc(16px + env(safe-area-inset-bottom))}
 }
 body:has(.modal-backdrop.show) .wa-float{opacity:0;pointer-events:none}
+/* v7.2: fondos sólidos en lo que toca el borde inferior (Safari ignora degradados al teñir su barra) */
+.info-foot{background:var(--panel-2);background-color:var(--panel-2)}
+.modal-backdrop{background-color:rgba(5,6,9,.84)}
+.edge-tint{height:6px;background-color:#0b0c10}
+@media (max-width:860px){
+  .modal{background-color:var(--panel)}
+  .info-foot::after{content:"";position:absolute;left:0;right:0;bottom:0;height:calc(10px + env(safe-area-inset-bottom));background-color:var(--panel-2)}
+}
