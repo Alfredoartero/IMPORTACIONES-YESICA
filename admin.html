@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=15">
+  <link rel="stylesheet" href="styles.css?v=16">
   <style>
     body{background:var(--bg)}
     .hidden{display:none!important}
@@ -25,6 +25,14 @@
     .google-btn{width:100%;border-radius:14px;padding:15px;background:#fff;color:#1f2937;border:0;font-weight:600}
     .google-btn:hover{background:#f3f4f6}
     .adm-list{display:grid;gap:8px}
+    .adm-form{background:none;border:0;padding:0;margin-top:22px;display:grid;gap:8px}
+    .adm-form label{font-size:12px;font-weight:600;color:var(--soft)}
+    .adm-form small{color:var(--muted);font-size:12px}
+    .adm-add{display:grid;grid-template-columns:1fr auto;gap:8px}
+    .adm-add input{width:100%;min-width:0;padding:13px 14px;border-radius:12px;border:1px solid var(--ring);background:var(--panel-2);color:#fff;font:inherit;font-size:15px;transition:border-color .2s,box-shadow .2s}
+    .adm-add input:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 4px rgba(219,39,119,.14)}
+    .adm-add .btn{width:auto;border-radius:12px;padding:13px 20px}
+    @media (max-width:420px){.adm-add{grid-template-columns:1fr}.adm-add .btn{width:100%}}
     .adm-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;background:var(--panel-2);border:1px solid var(--ring);font-size:14px}
     .adm-row small{color:var(--muted)}
     .msg{min-height:20px;font-size:13px;color:#fca5a5;margin-top:12px;text-align:center}
@@ -202,9 +210,13 @@
       <div class="ed-body">
         <p style="color:var(--muted);margin:0 0 16px;font-size:14px">Estas cuentas de Google pueden entrar al panel y editar la página.</p>
         <div id="adminList" class="adm-list"></div>
-        <form id="admForm" style="background:none;border:0;padding:0;margin-top:18px;display:flex;gap:8px">
-          <div class="fld" style="flex:1"><input id="admEmail" type="email" placeholder="correo@gmail.com"></div>
-          <button class="btn btn-primary" type="submit" style="border-radius:12px">Agregar</button>
+        <form id="admForm" class="adm-form">
+          <label for="admEmail">Agregar administrador</label>
+          <div class="adm-add">
+            <input id="admEmail" type="email" inputmode="email" autocomplete="email" placeholder="correo@gmail.com" required>
+            <button class="btn btn-primary" type="submit">Agregar</button>
+          </div>
+          <small>Debe ser una cuenta de Google (Gmail). Con eso ya puede entrar al panel.</small>
         </form>
       </div>
     </div>
@@ -213,7 +225,7 @@
   <div class="toast-a" id="toast"></div>
   <input type="file" id="fileIn" accept="image/*" multiple hidden>
 
-  <script src="autos.js?v=15"></script>
+  <script src="autos.js?v=16"></script>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getFirestore, collection, doc, onSnapshot, setDoc, updateDoc, deleteDoc, writeBatch, serverTimestamp, getDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
