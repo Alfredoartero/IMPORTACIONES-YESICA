@@ -286,13 +286,16 @@ if (grid) {
 
 /* ---- ENTREGADOS: traídos para clientes y vendidos ---- */
 const TIPO = { cliente: "Traído para cliente", vendido: "Vendido" };
-const delivered = (window.ENTREGADOS || []).map((d, order) => {
+const DEMO = new URLSearchParams(location.search).has("demo");
+const deliveredSrc = (window.ENTREGADOS && window.ENTREGADOS.length) ? window.ENTREGADOS : (DEMO ? (window.ENTREGADOS_DEMO || []) : []);
+const usingDemo = DEMO && deliveredSrc === window.ENTREGADOS_DEMO;
+const delivered = deliveredSrc.map((d, order) => {
   const images = (d.fotos || []).filter(Boolean);
   const name = d.nombre || "Vehículo";
   const tipo = d.tipo === "vendido" ? "vendido" : "cliente";
   return {
     tipo, order, images, name, title: name,
-    brand: TIPO[tipo], badge: TIPO[tipo],
+    brand: TIPO[tipo], badge: (usingDemo ? "Ejemplo · " : "") + TIPO[tipo],
     price: d.fecha || (tipo === "vendido" ? "Vendido" : "Entregado"),
     priceLabel: tipo === "vendido" ? "Vendido en" : "Entregado en",
     fecha: d.fecha || "", lugar: d.lugar || "",
@@ -308,6 +311,11 @@ const delivered = (window.ENTREGADOS || []).map((d, order) => {
 });
 document.querySelectorAll(".js-dcount").forEach(el => el.textContent = delivered.length);
 if (!delivered.length) document.querySelectorAll(".js-needs-delivered").forEach(el => el.remove());
+// En vista previa, los enlaces internos conservan ?demo=1
+if (DEMO) document.querySelectorAll('a[href$=".html"], a[href*=".html#"], a[href*=".html?"]').forEach(a => {
+  const [path, hash] = a.getAttribute("href").split("#");
+  a.setAttribute("href", path + (path.includes("?") ? "&" : "?") + "demo=1" + (hash ? "#" + hash : ""));
+});
 
 const CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="12" height="12"><path d="m5 12 5 5 9-10"/></svg>';
 function buildDeliveredCard(d){

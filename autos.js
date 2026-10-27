@@ -132,3 +132,13 @@ window.AUTOS = [
 window.ENTREGADOS = [
 
 ];
+
+/* Ejemplos SOLO para vista previa: se ven únicamente entrando con ?demo=1
+   (por ejemplo .../index.html?demo=1). Los clientes no los ven. Se pueden borrar. */
+window.ENTREGADOS_DEMO = [
+  { nombre: "Hyundai Elantra Sport 2018", tipo: "cliente", fecha: "Octubre 2026", lugar: "Ahuachapán", millaje: "72,000 mi", nota: "Ejemplo de búsqueda personalizada con tope definido por el cliente.", fotos: ["hyundai elantra sport 2018/sport1.jpg"] },
+  { nombre: "Hyundai Elantra SE 2017", tipo: "vendido", fecha: "Septiembre 2026", lugar: "Santa Ana", fotos: serie("hyundai elantra rojo/elantrarojo", 1, 12) },
+  { nombre: "Kia Rio LX 2018", tipo: "cliente", fecha: "Agosto 2026", lugar: "San Salvador", fotos: serie("kia rio rojo/rio", 1, 12) },
+  { nombre: "Hyundai Accent SE 2017", tipo: "vendido", fecha: "Julio 2026", lugar: "Sonsonate", fotos: serie("accent blanco uno/accent", 1, 12) },
+  { nombre: "Hyundai Elantra SEL 2018", tipo: "cliente", fecha: "Junio 2026", lugar: "Ahuachapán", fotos: serie("elantra negro 2018/elantra18.", 1, 12) }
+];
