@@ -492,7 +492,7 @@ body.near-contact .wa-float{opacity:0;transform:scale(.6);pointer-events:none}
 .row-head h2{text-align:left}
 .row-head .lead{margin:12px 0 0;text-align:left;max-width:520px}
 .row-actions{display:flex;gap:10px;align-items:center}
-.row{display:grid;grid-auto-flow:column;grid-auto-columns:calc((100% - 44px)/3);gap:22px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding:16px 6px 34px;margin:-16px -6px -34px;scroll-behavior:smooth;overscroll-behavior-x:contain}
+.row{display:grid;grid-auto-flow:column;grid-auto-columns:calc((100% - 44px)/3);gap:22px;overflow-x:auto;scrollbar-width:none;padding:16px 6px 34px;margin:-16px -6px -34px;scroll-behavior:smooth;overscroll-behavior-x:contain}
 .row::-webkit-scrollbar{display:none}
 .row > *{scroll-snap-align:start}
 .row .card.pop{animation-duration:.8s}
@@ -607,3 +607,9 @@ body.hdr-hidden .controls.sticky{top:14px}
   .col-mini{display:none}
   .tope-card{position:relative;right:auto;bottom:auto;width:auto;margin:-56px 14px 0}
 }
+
+/* v6.1 arreglos */
+.row.snap{scroll-snap-type:x mandatory}
+.row{overflow-anchor:none}
+header .mobile{position:absolute;left:12px;right:12px;top:calc(100% - 4px);margin:0 auto}
+@media (min-width:961px){header .mobile{display:none}}

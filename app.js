@@ -53,22 +53,24 @@ const cars = (window.AUTOS || []).map((a, order) => {
 
 /* Carga la primera foto que sí exista de una lista */
 function loadFirst(img, list, onFail){
-  const q = list.filter(Boolean).map(normalizeSrc); let i = 0;
+  const q = [...new Set(list.filter(Boolean).map(normalizeSrc))].slice(0, 3); let i = 0;
   const next = () => { if (i >= q.length) { onFail && onFail(); return; } img.src = q[i++]; };
   img.onerror = next; next();
 }
 
-/* ---- Intro (solo en inicio, primera visita de la sesión) ---- */
+/* ---- Intro: pantalla "IMPORTACIONES YESICA" al entrar al inicio ---- */
 (() => {
   const loader = $("loader");
-  if (!loader) { requestAnimationFrame(() => document.body.classList.add("ready")); return; }
-  let seen = false;
-  try { seen = sessionStorage.getItem("iy_intro") === "1"; sessionStorage.setItem("iy_intro", "1"); } catch(e) {}
-  const go = () => { loader.classList.add("done"); document.body.classList.add("ready"); };
-  if (seen || reduce) { loader.style.display = "none"; requestAnimationFrame(() => document.body.classList.add("ready")); return; }
+  const ready = () => document.body.classList.add("ready");
+  if (!loader || reduce) {
+    if (loader) loader.style.display = "none";
+    requestAnimationFrame(ready); setTimeout(ready, 60);
+    return;
+  }
   const txt = "IMPORTACIONES YESICA";
   $("loaderLogo").innerHTML = [...txt].map((ch, i) => `<span class="${i > 13 ? "pk" : ""}" style="animation-delay:${i * 35}ms">${ch === " " ? "&nbsp;" : ch}</span>`).join("");
-  setTimeout(go, 1500);
+  document.body.classList.add("locked");
+  setTimeout(() => { loader.classList.add("done"); document.body.classList.remove("locked"); window.scrollTo(0, 0); ready(); }, 1500);
 })();
 
 /* ---- Títulos palabra por palabra ---- */
@@ -190,10 +192,13 @@ if (row) {
   more.innerHTML = `<div><div class="rm-count">${cars.length}</div><div class="rm-label">Ver todo el inventario</div><p>Filtra por marca, busca por modelo y ordena por precio.</p></div><div class="rm-go"><span>Abrir inventario</span><span>${ARROW_UR}</span></div>`;
   row.appendChild(more);
 
+  // El "snap" se activa solo cuando la persona usa la fila (evita que Safari salte aquí al cargar)
+  const enableSnap = () => row.classList.add("snap");
+  ["touchstart", "pointerdown", "wheel"].forEach(ev => row.addEventListener(ev, enableSnap, {passive:true, once:true}));
   const prev = $("rowPrev"), next = $("rowNext"), bar = $("rowBar");
   const step = () => (row.querySelector(".card")?.offsetWidth || 300) + 22;
-  prev.addEventListener("click", () => row.scrollBy({left: -step(), behavior: "smooth"}));
-  next.addEventListener("click", () => row.scrollBy({left: step(), behavior: "smooth"}));
+  prev.addEventListener("click", () => enableSnap() || row.scrollBy({left: -step(), behavior: "smooth"}));
+  next.addEventListener("click", () => enableSnap() || row.scrollBy({left: step(), behavior: "smooth"}));
   const upd = () => {
     const max = row.scrollWidth - row.clientWidth;
     const p = max > 0 ? row.scrollLeft / max : 1;
@@ -295,7 +300,7 @@ if (slidesBox) {
   let hIdx = 0, hTimer = null;
   heroCars.forEach((c, i) => {
     const im = document.createElement("img"); im.alt = ""; if (i > 0) im.loading = "lazy";
-    slidesBox.appendChild(im); loadFirst(im, c.images, () => im.remove());
+    slidesBox.appendChild(im); loadFirst(im, c.images, () => { im.style.display = "none"; c.broken = true; if (hIdx === i) showSlide(i + 1); });
     const ci = document.createElement("img"); ci.alt = c.name; if (i > 0) ci.loading = "lazy";
     $("scMedia").appendChild(ci); loadFirst(ci, c.images, () => ci.style.display = "none");
     const b = document.createElement("button"); b.setAttribute("aria-label", c.name); b.innerHTML = "<span></span>";
@@ -307,6 +312,8 @@ if (slidesBox) {
   function showSlide(i){
     if (!heroCars.length) return;
     hIdx = (i + heroCars.length) % heroCars.length;
+    let guard = 0;
+    while (heroCars[hIdx].broken && guard++ < heroCars.length) hIdx = (hIdx + 1) % heroCars.length;
     const c = heroCars[hIdx];
     [...slidesBox.children].forEach((im, k) => im.classList.toggle("on", k === hIdx));
     [...$("scMedia").querySelectorAll("img")].forEach((im, k) => im.classList.toggle("on", k === hIdx));
