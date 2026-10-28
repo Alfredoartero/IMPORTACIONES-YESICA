@@ -207,7 +207,7 @@ else if (row) {
   const MAX = 10; // máximo de carros en la fila del inicio (el resto está en inventario.html)
   cars.slice(0, MAX).forEach(c => row.appendChild(buildCard(c)));
   const more = document.createElement("a");
-  more.href = "inventario.html"; more.className = "row-more";
+  more.href = "inventario"; more.className = "row-more";
   more.innerHTML = `<div><div class="rm-count">${cars.length}</div><div class="rm-label">Ver todo el inventario</div><p>Filtra por marca, busca por modelo y ordena por precio.</p></div><div class="rm-go"><span>Abrir inventario</span><span>${ARROW_UR}</span></div>`;
   row.appendChild(more);
 
@@ -331,7 +331,7 @@ const delivered = deliveredSrc.map((d, order) => {
 document.querySelectorAll(".js-dcount").forEach(el => el.textContent = delivered.length);
 if (!delivered.length) document.querySelectorAll(".js-needs-delivered").forEach(el => el.remove());
 // En vista previa, los enlaces internos conservan ?demo=1
-if (DEMO) document.querySelectorAll('a[href$=".html"], a[href*=".html#"], a[href*=".html?"]').forEach(a => {
+if (DEMO) document.querySelectorAll('a[href="./"], a[href^="./#"], a[href^="inventario"], a[href^="entregados"]').forEach(a => {
   const [path, hash] = a.getAttribute("href").split("#");
   a.setAttribute("href", path + (path.includes("?") ? "&" : "?") + "demo=1" + (hash ? "#" + hash : ""));
 });
@@ -398,7 +398,7 @@ const dRow = $("deliveredRow");
 if (dRow && delivered.length) {
   delivered.slice(0, 8).forEach(d => dRow.appendChild(buildDeliveredCard(d)));
   if (delivered.length > 8) {
-    const more = document.createElement("a"); more.href = "entregados.html"; more.className = "row-more";
+    const more = document.createElement("a"); more.href = "entregados"; more.className = "row-more";
     more.innerHTML = `<div><div class="rm-count">${delivered.length}</div><div class="rm-label">Ver todas las entregas</div><p>Carros traídos para clientes y vendidos.</p></div><div class="rm-go"><span>Abrir galería</span><span>${ARROW_UR}</span></div>`;
     dRow.appendChild(more);
   }
@@ -571,7 +571,7 @@ if ($("numbers")) {
 let currentShareCar = null;
 function shareUrl(car){
   const base = location.href.replace(/[^/]*([?#].*)?$/, "");
-  return base + (car.kind === "entrega" ? "entregados.html?entrega=" : "inventario.html?auto=") + encodeURIComponent(car.id);
+  return base + (car.kind === "entrega" ? "entregados?entrega=" : "inventario?auto=") + encodeURIComponent(car.id);
 }
 function toastMsg(t){
   let el = document.getElementById("pubToast");

@@ -24,7 +24,7 @@ let adminEmails = [];
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const imgSrc = u => /^https?:\/\//i.test(u) ? u : encodeURI(u);
-const SITE = location.href.replace(/admin\.html.*$/, "");
+const SITE = location.href.replace(/admin(\.html)?([?#].*)?$/, "");
 const MESES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 const mesActual = () => { const d = new Date(); return `${MESES[d.getMonth()]} ${d.getFullYear()}`; };
 
@@ -167,7 +167,7 @@ $("list").addEventListener("click", async e => {
       await batch.commit();
     }
     if (act === "link") {
-      const url = SITE + (tab === "autos" ? "inventario.html?auto=" : "entregados.html?entrega=") + encodeURIComponent(id);
+      const url = SITE + (tab === "autos" ? "inventario?auto=" : "entregados?entrega=") + encodeURIComponent(id);
       await navigator.clipboard.writeText(url).then(() => toast("Link copiado: listo para pegar en WhatsApp"), () => prompt("Copia este link:", url));
     }
     if (act === "sold") {
