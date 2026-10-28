@@ -570,6 +570,10 @@ if ($("numbers")) {
     /* ======== VENTANA DE FOTOS ======== */
 let currentShareCar = null;
 function shareUrl(car){
+  // Link corto con foto del carro en WhatsApp (ver.importacionesyesica.com, Cloudflare Worker).
+  // Carros sin id de Firebase usan el link normal de la página.
+  if (/^[A-Za-z0-9_-]{8,64}$/.test(String(car.id || "")))
+    return "https://ver.importacionesyesica.com/" + (car.kind === "entrega" ? "e/" : "") + car.id;
   const base = location.href.replace(/[^/]*([?#].*)?$/, "");
   return base + (car.kind === "entrega" ? "entregados?entrega=" : "inventario?auto=") + encodeURIComponent(car.id);
 }
