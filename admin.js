@@ -248,24 +248,37 @@ function openEditor(item){
   drop.addEventListener("click", () => $("fileIn").click());
   drop.addEventListener("dragover", e => { e.preventDefault(); drop.classList.add("over"); });
   drop.addEventListener("dragleave", () => drop.classList.remove("over"));
-  drop.addEventListener("drop", e => { e.preventDefault(); drop.classList.remove("over"); addFiles([...e.dataTransfer.files].filter(f => f.type.startsWith("image/"))); });
+  drop.addEventListener("drop", e => { e.preventDefault(); drop.classList.remove("over"); addFiles([...e.dataTransfer.files]); });
   setTimeout(() => $("f_nombre").focus(), 100);
 }
 $("fileIn").addEventListener("change", e => { addFiles([...e.target.files]); e.target.value = ""; });
 
+function slotHTML(u){
+  if (typeof u === "string") return `<img src="${esc(imgSrc(u))}" alt="">`;
+  const img = u.preview ? `<img src="${u.preview}" alt="">` : "";
+  if (u.err) return `${img}<div class="prog err">No se subió<small>${esc(u.err)}</small><span><button data-retry="${u.k}">Reintentar</button></span></div>`;
+  return `${img}<div class="prog" data-prog="${u.k}">${u.pct ? u.pct + "%" : (u.preview ? "En cola…" : "Preparando…")}<i style="width:${u.pct || 0}%"></i></div>`;
+}
 function renderPhotos(){
   const box = $("photos"); if (!box) return;
   box.innerHTML = ed.fotos.map((u, i) => `<div class="ph ${i === 0 ? "cover" : ""}" draggable="true" data-i="${i}">
-    ${typeof u === "string" ? `<img src="${esc(imgSrc(u))}" alt="">` : `<img src="${u.preview}" alt=""><div class="prog">${u.pct}%<i style="width:${u.pct}%"></i></div>`}
+    ${slotHTML(u)}
     ${i === 0 ? '<span class="tag">Portada</span>' : ""}
     <div class="ctl"><button data-x="${i}" title="Quitar">✕</button></div>
     <div class="mv"><button data-l="${i}" title="Mover a la izquierda">‹</button><button data-r="${i}" title="Mover a la derecha">›</button></div>
   </div>`).join("");
 }
+// Actualiza solo la barra de una foto (sin redibujar todo: así las fotos no parpadean ni se quedan sin cargar)
+function setProgress(slot){
+  const el = document.querySelector(`[data-prog="${slot.k}"]`);
+  if (!el) return renderPhotos();
+  el.firstChild.nodeValue = slot.pct + "%"; el.querySelector("i").style.width = slot.pct + "%";
+}
 $("edBody").addEventListener("click", e => {
   const t = e.target;
   const move = (a, b) => { if (b < 0 || b >= ed.fotos.length) return; [ed.fotos[a], ed.fotos[b]] = [ed.fotos[b], ed.fotos[a]]; renderPhotos(); };
-  if (t.dataset.x != null) { ed.fotos.splice(+t.dataset.x, 1); renderPhotos(); }
+  if (t.dataset.x != null) { const [q] = ed.fotos.splice(+t.dataset.x, 1); if (q && typeof q === "object") { q.cancel = true; q.task?.cancel(); } renderPhotos(); status(); }
+  if (t.dataset.retry != null) { const q = ed.fotos.find(u => typeof u === "object" && u.k === t.dataset.retry); if (q) { q.err = null; q.pct = 0; enqueue(q); renderPhotos(); } }
   if (t.dataset.l != null) move(+t.dataset.l, +t.dataset.l - 1);
   if (t.dataset.r != null) move(+t.dataset.r, +t.dataset.r + 1);
 });
@@ -278,39 +291,95 @@ $("edBody").addEventListener("drop", e => {
   const to = +p.dataset.i; const [m] = ed.fotos.splice(dragI, 1); ed.fotos.splice(to, 0, m); dragI = null; renderPhotos();
 });
 
-async function comprimir(file, max = 1600, q = .82){
-  let src, w, h;
-  try { src = await createImageBitmap(file); w = src.width; h = src.height; }
-  catch (e) { src = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = URL.createObjectURL(file); }); w = src.naturalWidth; h = src.naturalHeight; }
-  const k = Math.min(1, max / Math.max(w, h));
-  const c = document.createElement("canvas"); c.width = Math.round(w * k); c.height = Math.round(h * k);
-  c.getContext("2d").drawImage(src, 0, 0, c.width, c.height);
-  return await new Promise(r => c.toBlob(r, "image/jpeg", q));
+async function decodificar(file){
+  try { return await createImageBitmap(file, { imageOrientation: "from-image" }); } catch (e) {}
+  try { return await createImageBitmap(file); } catch (e) {}
+  return await new Promise((res, rej) => {
+    const u = URL.createObjectURL(file), i = new Image();
+    i.onload = () => { URL.revokeObjectURL(u); res(i); };
+    i.onerror = () => { URL.revokeObjectURL(u); rej(new Error("formato")); };
+    i.src = u;
+  });
+}
+async function comprimir(file){
+  const src = await decodificar(file);
+  const w = src.width || src.naturalWidth, h = src.height || src.naturalHeight;
+  if (!w || !h) throw new Error("formato");
+  // Si el navegador se queda sin memoria (fotos muy grandes en celular), prueba más pequeño
+  for (const [max, q] of [[1600, .82], [1280, .8], [1024, .78]]) {
+    const k = Math.min(1, max / Math.max(w, h));
+    const c = document.createElement("canvas"); c.width = Math.round(w * k); c.height = Math.round(h * k);
+    const ctx = c.getContext("2d"); if (!ctx) continue;
+    ctx.drawImage(src, 0, 0, c.width, c.height);
+    const blob = await new Promise(r => c.toBlob(r, "image/jpeg", q));
+    c.width = c.height = 0;
+    if (blob && blob.size > 1000) { src.close?.(); return blob; }
+  }
+  src.close?.();
+  throw new Error("memoria");
+}
+// Cola: sube de 3 en 3 en vez de todas a la vez (antes, con muchas fotos, el navegador se saturaba y algunas fallaban)
+const queue = []; let activos = 0; const MAX_ACTIVOS = 3;
+function enqueue(slot){ slot.ed = ed; queue.push(slot); ed.subiendo++; status(); pump(); }
+function pump(){
+  while (activos < MAX_ACTIVOS && queue.length) { const slot = queue.shift(); activos++; subir(slot).finally(() => { activos--; if (slot.ed) slot.ed.subiendo = Math.max(0, slot.ed.subiendo - 1); if (ed) status(); pump(); }); }
+}
+const MSG = {
+  formato: "Formato no compatible (las fotos HEIC del iPhone no abren en la compu). Súbela desde el iPhone o pásala a JPG.",
+  memoria: "La foto es demasiado grande para este dispositivo.",
+  "storage/unauthorized": "Tu cuenta no tiene permiso. Vuelve a entrar al panel.",
+  "storage/canceled": "Cancelada.",
+  "storage/retry-limit-exceeded": "Se cortó el internet. Toca Reintentar.",
+  "storage/quota-exceeded": "Se llenó el espacio de Firebase."
+};
+async function subir(slot){
+  if (slot.cancel || !ed) return;
+  const edAt = ed;
+  try {
+    const blob = slot.blob || (slot.blob = await comprimir(slot.file));
+    if (!slot.preview) { slot.preview = URL.createObjectURL(blob); renderPhotos(); }
+    let ultimoError;
+    for (let intento = 0; intento < 2; intento++) {
+      if (slot.cancel || ed !== edAt) return;
+      try {
+        const path = `web/${edAt.col}/${edAt.id}/${Date.now()}_${Math.random().toString(36).slice(2, 7)}.jpg`;
+        const task = slot.task = uploadBytesResumable(ref(storage, path), blob, { contentType: "image/jpeg", cacheControl: "public,max-age=31536000" });
+        await new Promise((res, rej) => task.on("state_changed", sn => { slot.pct = Math.round(sn.bytesTransferred / sn.totalBytes * 100); setProgress(slot); }, rej, res));
+        const url = await getDownloadURL(task.snapshot.ref);
+        if (slot.cancel || ed !== edAt) { deleteObject(ref(storage, url)).catch(() => {}); return; }
+        const i = edAt.fotos.indexOf(slot); if (i >= 0) edAt.fotos[i] = url; edAt.nuevas.push(url);
+        // Espera a que la foto cargue antes de quitar la vista previa, para que no se vea en blanco
+        await new Promise(r => { const im = new Image(); im.onload = im.onerror = r; im.src = url; setTimeout(r, 8000); });
+        URL.revokeObjectURL(slot.preview);
+        renderPhotos();
+        return;
+      } catch (e) { ultimoError = e; if (e.code === "storage/canceled" || e.code === "storage/unauthorized") break; await new Promise(r => setTimeout(r, 1500)); }
+    }
+    throw ultimoError;
+  } catch (err) {
+    if (slot.cancel) return;
+    const code = err?.code || err?.message || "";
+    slot.err = MSG[code] || (code ? "Error: " + code : "Error desconocido");
+    console.warn("Foto no subida:", slot.file?.name, err);
+    if (ed === edAt) renderPhotos();
+  }
 }
 function addFiles(files){
-  files.forEach(async file => {
-    const slot = { preview: URL.createObjectURL(file), pct: 0 };
-    ed.fotos.push(slot); ed.subiendo++; renderPhotos(); status();
-    try {
-      const blob = await comprimir(file);
-      const path = `web/${ed.col}/${ed.id}/${Date.now()}_${Math.random().toString(36).slice(2, 7)}.jpg`;
-      const task = uploadBytesResumable(ref(storage, path), blob, { contentType: "image/jpeg", cacheControl: "public,max-age=31536000" });
-      await new Promise((res, rej) => task.on("state_changed", s => { slot.pct = Math.round(s.bytesTransferred / s.totalBytes * 100); renderPhotos(); }, rej, res));
-      const url = await getDownloadURL(task.snapshot.ref);
-      const i = ed.fotos.indexOf(slot); if (i >= 0) ed.fotos[i] = url; ed.nuevas.push(url);
-    } catch (err) {
-      const i = ed.fotos.indexOf(slot); if (i >= 0) ed.fotos.splice(i, 1);
-      toast(/storage\/(unknown|unauthorized|bucket-not-found|project-not-found)|404|retry-limit/.test(String(err.code || err.message))
-        ? "Las fotos aún no se pueden subir: falta activar Storage en Firebase (plan Blaze)."
-        : "No se pudo subir una foto: " + (err.code || err.message), true);
-    }
-    ed.subiendo--; renderPhotos(); status();
+  const malos = files.filter(f => !/^image\//.test(f.type) && !/\.(heic|heif|jpe?g|png|webp)$/i.test(f.name));
+  if (malos.length) toast(`${malos.length} archivo(s) no son fotos y se saltaron.`, true);
+  files.filter(f => !malos.includes(f)).forEach(file => {
+    const slot = { k: Math.random().toString(36).slice(2, 9), file, pct: 0, preview: null };
+    ed.fotos.push(slot);
+    enqueue(slot);
   });
+  renderPhotos();
 }
 function status(){ $("edStatus").textContent = ed && ed.subiendo ? `Subiendo ${ed.subiendo} foto(s)…` : ""; $("edSave").disabled = !!(ed && ed.subiendo); }
 
 function closeEditor(cancel){
   if (cancel && ed) ed.nuevas.forEach(u => deleteObject(ref(storage, u)).catch(() => {}));
+  if (ed) ed.fotos.forEach(u => { if (typeof u === "object") { u.cancel = true; u.task?.cancel(); } });
+  queue.length = 0;
   $("edBack").classList.remove("show"); document.body.style.overflow = ""; ed = null;
 }
 $("edClose").addEventListener("click", () => { if (!ed?.nuevas.length || confirm("¿Salir sin guardar?")) closeEditor(true); });
