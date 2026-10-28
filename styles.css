@@ -713,3 +713,6 @@ body:has(.modal-backdrop.show) .wa-float{opacity:0;pointer-events:none}
 /* La franja siempre se mueve (aceleración por GPU, sin pausas por toques en iPhone) */
 .ticker-track{will-change:transform;transform:translate3d(0,0,0);-webkit-backface-visibility:hidden;backface-visibility:hidden}
 @keyframes slide{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}
+/* v7.4: la tarjeta "Ver todo el inventario" siempre visible al final de la fila (iPhone) */
+.row-more{opacity:1;align-self:stretch}
+.row .card.pop,.row .row-more.pop{animation-fill-mode:backwards}

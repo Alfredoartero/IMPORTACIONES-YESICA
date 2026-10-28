@@ -240,9 +240,7 @@ else if (row) {
     if (!e.isIntersecting) return; rio.disconnect();
     [...row.children].forEach((c, i) => { c.style.animationDelay = (i * 90) + "ms"; c.classList.add("pop"); });
   }), {threshold:.2});
-  [...row.children].forEach(c => c.style.opacity = "0");
   rio.observe(row);
-  row.addEventListener("animationstart", e => e.target.style.opacity = "");
 }
 
 /* ---- INVENTARIO: filtros, buscador y orden ---- */
