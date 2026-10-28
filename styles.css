@@ -729,3 +729,14 @@ body:has(.modal-backdrop.show) .wa-float{opacity:0;pointer-events:none}
 .row-nav[disabled]{opacity:0;pointer-events:none;transform:scale(.85)}
 @media (max-width:1300px){.row-nav.prev{left:-8px}.row-nav.next{right:-8px}}
 @media (max-width:640px),(hover:none){.row-nav{display:none}}
+
+/* v7.6: entregados claramente distintos del inventario (sello y foto más apagada) */
+.done-card .c-media img{filter:saturate(.7) brightness(.82);transition:filter .5s ease,transform 1s var(--ease)}
+.done-card:hover .c-media img{filter:saturate(.95) brightness(.95)}
+.done-card .c-media::after{content:"ENTREGADO";position:absolute;left:50%;top:50%;z-index:2;transform:translate(-50%,-50%) rotate(-12deg);
+  padding:8px 18px;border:2.5px solid rgba(255,255,255,.85);border-radius:10px;color:#fff;
+  font-family:var(--display);font-weight:700;font-size:20px;letter-spacing:.22em;
+  background:rgba(11,12,16,.28);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);
+  text-shadow:0 2px 10px rgba(0,0,0,.5);pointer-events:none;white-space:nowrap}
+.done-card .c-media:has(.done-badge.vendido)::after{content:"VENDIDO"}
+@media (max-width:640px){.done-card .c-media::after{font-size:16px;padding:6px 14px}}
