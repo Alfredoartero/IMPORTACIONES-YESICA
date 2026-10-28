@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=23">
+  <link rel="stylesheet" href="styles.css?v=24">
 </head>
 <body>
 
@@ -115,12 +115,12 @@
           <h2 class="display">Vehículos <em>disponibles</em></h2>
           <p class="lead">Desliza para ver más.<span class="mouse-only"> Pasa el mouse sobre la foto para ver otros ángulos.</span></p>
         </div>
-        <div class="row-actions">
-          <button class="round" id="rowPrev" aria-label="Anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m15 18-6-6 6-6"/></svg></button>
-          <button class="round" id="rowNext" aria-label="Siguiente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m9 18 6-6-6-6"/></svg></button>
-        </div>
       </div>
-      <div class="row" id="previewRow"></div>
+      <div class="row-wrap">
+        <button class="round row-nav prev" id="rowPrev" aria-label="Carros anteriores"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m15 18-6-6 6-6"/></svg></button>
+        <div class="row" id="previewRow"></div>
+        <button class="round row-nav next" id="rowNext" aria-label="Más carros"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m9 18 6-6-6-6"/></svg></button>
+      </div>
       <div class="row-foot reveal">
         <div class="row-progress"><span id="rowBar"></span></div>
         <a class="see-all" href="inventario.html"><span>Ver inventario completo (<span class="js-count"></span>)</span> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
@@ -359,6 +359,6 @@
 
 
   <script src="autos.js?v=20"></script>
-  <script src="datos.js?v=20" data-app="app.js?v=23"></script>
+  <script src="datos.js?v=20" data-app="app.js?v=24"></script>
 </body>
 </html>

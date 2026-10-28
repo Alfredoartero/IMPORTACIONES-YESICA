@@ -716,3 +716,16 @@ body:has(.modal-backdrop.show) .wa-float{opacity:0;pointer-events:none}
 /* v7.4: la tarjeta "Ver todo el inventario" siempre visible al final de la fila (iPhone) */
 .row-more{opacity:1;align-self:stretch}
 .row .card.pop,.row .row-more.pop{animation-fill-mode:backwards}
+
+/* v7.5: flechas de la fila a los lados, a media altura (se pasan carros sin perderlos de vista) */
+.row-wrap{position:relative}
+.row-nav{position:absolute;top:50%;z-index:6;width:56px;height:56px;margin-top:-28px;border-radius:50%;
+  background:rgba(16,18,24,.78);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border:1px solid var(--ring-2);box-shadow:0 14px 34px rgba(0,0,0,.55);transition:opacity .3s,transform .3s var(--ease),background .3s,border-color .3s}
+.row-nav svg{width:20px;height:20px}
+.row-nav.prev{left:-24px}
+.row-nav.next{right:-24px}
+.row-nav:hover{background:var(--brand);border-color:var(--brand);transform:scale(1.08)}
+.row-nav[disabled]{opacity:0;pointer-events:none;transform:scale(.85)}
+@media (max-width:1300px){.row-nav.prev{left:-8px}.row-nav.next{right:-8px}}
+@media (max-width:640px),(hover:none){.row-nav{display:none}}
