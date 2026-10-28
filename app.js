@@ -204,7 +204,7 @@ if (!cars.length) {
 const row = $("previewRow");
 if (row && !cars.length) { row.outerHTML = EMPTY_HTML; }
 else if (row) {
-  const MAX = 6;
+  const MAX = 10; // máximo de carros en la fila del inicio (el resto está en inventario.html)
   cars.slice(0, MAX).forEach(c => row.appendChild(buildCard(c)));
   const more = document.createElement("a");
   more.href = "inventario.html"; more.className = "row-more";
