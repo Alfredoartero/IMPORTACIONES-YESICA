@@ -49,7 +49,20 @@
   @keyframes iyRing{0%{transform:scale(1);opacity:.9}100%{transform:scale(1.25,1.6);opacity:0}}
   @keyframes iyEq{0%,100%{height:4px}50%{height:16px}}
   @keyframes iyIn{from{opacity:0;transform:translateX(-50%) translateY(24px) scale(.92)}to{opacity:1;transform:translateX(-50%)}}
-  @media (max-width:520px){.iy-brand{display:none}.iy-sound{font-size:15px;padding:14px 22px 14px 14px}}
+  @media (max-width:600px){
+    .iy-brand{display:none}
+    .iy-sound{left:auto;right:14px;bottom:max(18px,calc(env(safe-area-inset-bottom) + 12px));transform:none;gap:8px;padding:8px 13px 8px 8px;font-size:12.5px;font-weight:600;background:rgba(12,12,16,.5);border-color:rgba(244,114,182,.6);box-shadow:0 4px 18px rgba(0,0,0,.35);animation:iyInM .6s .6s both ease-out}
+    .iy-sound:hover{transform:none}
+    .iy-sound::before{inset:-3px;border-width:1.5px}
+    .iy-sound .ic{width:26px;height:26px;background:#db2777}
+    .iy-sound .ic svg{width:14px;height:14px}
+    .iy-sound .eq{display:none}
+    .iy-sound.hide{transform:translateY(12px) scale(.9)}
+    .iy-mute{left:auto;right:14px;bottom:max(18px,calc(env(safe-area-inset-bottom) + 12px));width:38px;height:38px}
+    .iy-top{justify-content:flex-end}
+    .iy-skip{padding:9px 13px;font-size:12px}
+  }
+  @keyframes iyInM{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
   `;
   const st = document.createElement("style"); st.textContent = css; document.head.appendChild(st);
 
