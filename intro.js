@@ -8,15 +8,16 @@
 (function () {
   const q = new URLSearchParams(location.search);
   const PREVIEW = q.has("intro");
-  const ACTIVO = true;             // cambiar a true para mostrarla a todos (solo la primera visita)
+  const ACTIVO = true;             // lanzamiento: se muestra en CADA visita. Poner false para quitarla.
+  const SOLO_PRIMERA_VEZ = false;  // poner true para que salga solo la primera vez
   const KEY = "iy_intro_v1";
   let visto = false;
   try { visto = localStorage.getItem(KEY) === "1"; } catch (e) {}
-  if (!PREVIEW && (!ACTIVO || visto)) return;
+  if (!PREVIEW && (!ACTIVO || (SOLO_PRIMERA_VEZ && visto))) return;
   if (matchMedia("(prefers-reduced-motion: reduce)").matches && !PREVIEW) return;
 
   const vertical = matchMedia("(max-aspect-ratio: 4/5)").matches;
-  const src = vertical ? "media/intro-v.mp4?v=1" : "media/intro-h.mp4?v=1";
+  const src = vertical ? "media/intro-v.mp4?v=2" : "media/intro-h.mp4?v=2";
   const poster = vertical ? "media/intro-v.jpg?v=1" : "media/intro-h.jpg?v=1";
 
   const css = `
@@ -38,7 +39,8 @@
   .iy-sound .eq{display:flex;align-items:flex-end;gap:3px;height:16px;margin-left:2px}
   .iy-sound .eq i{width:3px;border-radius:2px;background:#fff;animation:iyEq 1s infinite ease-in-out}
   .iy-sound .eq i:nth-child(2){animation-delay:-.4s}.iy-sound .eq i:nth-child(3){animation-delay:-.2s}.iy-sound .eq i:nth-child(4){animation-delay:-.7s}
-  .iy-sound.hide{opacity:0;transform:translateX(-50%) translateY(20px) scale(.9);pointer-events:none}
+  .iy-sound.hide{opacity:0;transform:translateX(-50%) translateY(20px) scale(.9);pointer-events:none;animation:none}
+  .iy-sound.on{padding:8px;gap:0;animation:none}.iy-sound.on .txt,.iy-sound.on .eq{display:none}.iy-sound.on::before{display:none}.iy-sound.on .ic{background:rgba(255,255,255,.18)}
   .iy-mute{position:absolute;left:20px;bottom:max(26px,calc(env(safe-area-inset-bottom) + 18px));width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.22);background:rgba(10,10,14,.45);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff;display:none;place-items:center;cursor:pointer}
   .iy-mute.show{display:grid}.iy-mute svg{width:18px;height:18px}
   .iy-bar{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.12)}
@@ -58,6 +60,7 @@
     .iy-sound .ic svg{width:14px;height:14px}
     .iy-sound .eq{display:none}
     .iy-sound.hide{transform:translateY(12px) scale(.9)}
+    .iy-sound.on{padding:6px}.iy-sound.on .ic{width:34px;height:34px;background:#db2777}
     .iy-mute{left:auto;right:14px;bottom:max(18px,calc(env(safe-area-inset-bottom) + 12px));width:38px;height:38px}
     .iy-top{justify-content:flex-end}
     .iy-skip{padding:9px 13px;font-size:12px}
@@ -75,8 +78,7 @@
     <div class="shade"></div>
     <div class="iy-top"><div class="iy-brand">IMPORTACIONES <b>YESICA</b></div>
       <button class="iy-skip" type="button">Saltar intro <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 5v14l9-7zM15 5h3v14h-3z"/></svg></button></div>
-    <button class="iy-sound" type="button"><span class="ic">${ICON_ON}</span>Activar sonido<span class="eq"><i></i><i></i><i></i><i></i></span></button>
-    <button class="iy-mute" type="button" aria-label="Silenciar">${ICON_ON}</button>
+    <button class="iy-sound" type="button" aria-label="Activar sonido"><span class="ic">${ICON_ON}</span><span class="txt">Activar sonido</span><span class="eq"><i></i><i></i><i></i><i></i></span></button>
     <button class="iy-play" type="button"><span><svg width="30" height="30" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></span>Ver video</button>
     <div class="iy-bar"><i></i></div>`;
   document.body.appendChild(el);
@@ -84,7 +86,7 @@
   document.documentElement.style.overflow = "hidden";
 
   const v = el.querySelector("video"), bar = el.querySelector(".iy-bar i");
-  const btnSound = el.querySelector(".iy-sound"), btnMute = el.querySelector(".iy-mute"), btnPlay = el.querySelector(".iy-play");
+  const btnSound = el.querySelector(".iy-sound"), btnPlay = el.querySelector(".iy-play");
   let cerrado = false;
   function cerrar() {
     if (cerrado) return; cerrado = true;
@@ -94,13 +96,20 @@
     const v0 = v.volume; let k = 0; const iv = setInterval(() => { k++; v.volume = Math.max(0, v0 * (1 - k / 12)); if (k >= 12) { clearInterval(iv); v.pause(); } }, 70);
     setTimeout(() => { el.remove(); st.remove(); document.documentElement.style.overflow = prevOverflow; }, 950);
   }
+  // Un solo botón rosa: la primera vez activa el sonido (y reinicia el video);
+  // después queda como circulito para silenciar / volver a activar.
   function conSonido() {
     v.muted = false; v.volume = 1; v.currentTime = 0;
     v.play().catch(() => {});
-    btnSound.classList.add("hide"); btnMute.classList.add("show"); btnMute.innerHTML = ICON_ON;
+    btnSound.classList.remove("hide"); btnSound.classList.add("on");
+    btnSound.querySelector(".ic").innerHTML = ICON_ON; btnSound.setAttribute("aria-label", "Silenciar");
   }
-  btnSound.addEventListener("click", conSonido);
-  btnMute.addEventListener("click", () => { v.muted = !v.muted; btnMute.innerHTML = v.muted ? ICON_OFF : ICON_ON; });
+  btnSound.addEventListener("click", () => {
+    if (!btnSound.classList.contains("on")) return conSonido();
+    v.muted = !v.muted;
+    btnSound.querySelector(".ic").innerHTML = v.muted ? ICON_OFF : ICON_ON;
+    btnSound.setAttribute("aria-label", v.muted ? "Activar sonido" : "Silenciar");
+  });
   btnPlay.addEventListener("click", () => { btnPlay.classList.remove("show"); conSonido(); });
   el.querySelector(".iy-skip").addEventListener("click", cerrar);
   addEventListener("keydown", e => { if (e.key === "Escape") cerrar(); });
