@@ -39,6 +39,11 @@ if ("scrollRestoration" in history) history.scrollRestoration = "manual";
 // Solo se aceptan links reales de Copart (evita links peligrosos aunque alguien los escribiera)
 const safeCopart = u => (typeof u === "string" && /^https:\/\/(www\.)?copart\.com\/[^\s"'<>]*$/i.test(u.trim())) ? u.trim() : "";
 // Solo se aceptan fotos de Firebase Storage o del propio sitio
+// Marca = primera palabra que no sea un año (ej. "2021 KIA FORTE" -> KIA), siempre en mayúsculas
+function marcaDe(nombre){
+  const w = String(nombre || "").trim().split(/\s+/).find(p => !/^(19|20)\d{2}$/.test(p) && /[a-z]/i.test(p));
+  return w ? w.replace(/[^\wáéíóúñ-]/gi, "").toUpperCase() : "OTROS";
+}
 const safeImg = u => typeof u === "string" && (/^https:\/\/firebasestorage\.googleapis\.com\//.test(u) || !/^[a-z]+:/i.test(u));
 const slugUsed = {};
 const slug = s => { let b = String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "auto"; let k = b, n = 2; while (slugUsed[k]) k = b + "-" + n++; slugUsed[k] = 1; return k; };
@@ -51,7 +56,7 @@ const cars = (window.AUTOS || []).map((a, order) => {
   return {
     id: a.id || slug(title), copart: safeCopart(a.copart), kind: "auto",
     images, parts, title, name, price, order,
-    brand: name.split(" ")[0] || "Otros",
+    brand: marcaDe(name),
     year: +(name.match(/\b(19|20)\d{2}\b/) || [0])[0],
     priceNum: +(price.replace(/[^\d.]/g, "")) || null,
     desc: a.detalles || "",
