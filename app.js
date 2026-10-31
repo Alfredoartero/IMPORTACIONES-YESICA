@@ -4,8 +4,22 @@
    ========================================================= */
 
 /* ====== CONFIGURACIÓN: cambia aquí los números ====== */
-const WA_MAIN   = "50360196897";   // 6019-6897 (principal)
-const WA_SECOND = "50370644476";   // 7064-4476
+// Números de WhatsApp y qué porcentaje de clientes le toca a cada uno (los botones generales)
+const WA_NUMS = [
+  { num: "50360196897", peso: 40 },   // 6019-6897
+  { num: "50370644476", peso: 30 },   // 7064-4476
+  { num: "50377686303", peso: 30 },   // 7768-6303
+];
+// Cada visitante queda asignado a un número (según el reparto) y siempre le toca el mismo,
+// para que el cliente no termine hablando con dos personas distintas.
+const WA_MAIN = (() => {
+  const KEY = "iy_wa_v1";
+  try { const g = localStorage.getItem(KEY); if (WA_NUMS.some(x => x.num === g)) return g; } catch (e) {}
+  const total = WA_NUMS.reduce((a, x) => a + x.peso, 0); let r = Math.random() * total, pick = WA_NUMS[0].num;
+  for (const x of WA_NUMS) { if ((r -= x.peso) < 0) { pick = x.num; break; } }
+  try { localStorage.setItem(KEY, pick); } catch (e) {}
+  return pick;
+})();
 
 const $ = id => document.getElementById(id);
 const waUrl = (num, text) => `https://wa.me/${num}` + (text ? `?text=${encodeURIComponent(text)}` : "");
@@ -113,9 +127,11 @@ document.querySelectorAll(".split-words").forEach(h => {
 /* ---- Contacto y WhatsApp ---- */
 const generalMsg = "Hola, quisiera información sobre sus vehículos.";
 document.querySelectorAll(".js-wa").forEach(a => a.href = waUrl(WA_MAIN, generalMsg));
-document.querySelectorAll(".js-wa2").forEach(a => a.href = waUrl(WA_SECOND, generalMsg));
-document.querySelectorAll(".js-phone1").forEach(el => el.textContent = fmtPhone(WA_MAIN));
-document.querySelectorAll(".js-phone2").forEach(el => el.textContent = fmtPhone(WA_SECOND));
+// Números escritos (Contacto y pie de página): cada uno lleva a su propio número
+WA_NUMS.forEach((x, i) => {
+  document.querySelectorAll(".js-wa" + (i + 1)).forEach(a => a.href = waUrl(x.num, generalMsg));
+  document.querySelectorAll(".js-phone" + (i + 1)).forEach(el => el.textContent = fmtPhone(x.num));
+});
 document.querySelectorAll(".js-wa-search").forEach(a => a.href = waUrl(WA_MAIN, "Hola, quiero iniciar una búsqueda personalizada. Busco: "));
 document.querySelectorAll(".js-year").forEach(el => el.textContent = new Date().getFullYear());
 document.querySelectorAll(".js-count").forEach(el => el.textContent = cars.length);

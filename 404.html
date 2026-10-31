@@ -37,7 +37,15 @@
   <div class="btns">
     <a class="btn main" href="/inventario">Ver inventario</a>
     <a class="btn" href="/">Ir al inicio</a>
-    <a class="btn wa" href="https://wa.me/50360196897?text=Hola%2C%20quisiera%20informaci%C3%B3n%20sobre%20sus%20veh%C3%ADculos." target="_blank" rel="noopener">WhatsApp</a>
+    <a class="btn wa" id="wa" href="https://wa.me/50360196897?text=Hola%2C%20quisiera%20informaci%C3%B3n%20sobre%20sus%20veh%C3%ADculos." target="_blank" rel="noopener">WhatsApp</a>
   </div>
+  <script>
+    (function () { // mismo reparto que la página: 40% / 30% / 30%, y el visitante conserva su número
+      var N = [["50360196897", 40], ["50370644476", 30], ["50377686303", 30]], k = "iy_wa_v1", g = null;
+      try { g = localStorage.getItem(k); } catch (e) {}
+      if (!N.some(function (x) { return x[0] === g; })) { var r = Math.random() * 100; g = N[0][0]; for (var i = 0; i < N.length; i++) { if ((r -= N[i][1]) < 0) { g = N[i][0]; break; } } try { localStorage.setItem(k, g); } catch (e) {} }
+      document.getElementById("wa").href = "https://wa.me/" + g + "?text=" + encodeURIComponent("Hola, quisiera información sobre sus vehículos.");
+    })();
+  </script>
 </body>
 </html>
