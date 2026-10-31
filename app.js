@@ -523,16 +523,21 @@ if (finePointer && !reduce && $("glow")) {
 
 /* ---- Efectos con el scroll ---- */
 const road = $("road"), heroContent = $("heroContent");
-let lastY = 0, ticking = false, mx = 0, my = 0;
+let lastY = 0, ticking = false, mx = 0, my = 0, hidden = false, travel = 0;
 if (finePointer && slidesBox) addEventListener("mousemove", e => { mx = e.clientX / innerWidth - .5; my = e.clientY / innerHeight - .5; if (!ticking) { requestAnimationFrame(onScroll); ticking = true; } }, {passive:true});
+function setHidden(h){ if (h === hidden) return; hidden = h; hdr.classList.toggle("hide", h); document.body.classList.toggle("hdr-hidden", h); }
 function onScroll(){
   const y = scrollY, H = document.documentElement.scrollHeight - innerHeight;
   if (road) road.style.width = (H > 0 ? y / H * 100 : 0) + "%";
   hdr.classList.toggle("scrolled", y > 30);
-  if (!hdr.classList.contains("open")) {
-    const hide = y > lastY && y > 300;
-    hdr.classList.toggle("hide", hide);
-    document.body.classList.toggle("hdr-hidden", hide);
+  // Mostrar/ocultar el menú con margen: solo cambia tras un desplazamiento real
+  // (antes reaccionaba a 1px, al rebote del iPhone y al mover el mouse, y hacía saltar las barras)
+  const dy = y - lastY;
+  if (hdr.classList.contains("open") || y < 300) { setHidden(false); travel = 0; }
+  else if (dy !== 0 && y >= 0 && y <= H) {
+    travel = (Math.sign(dy) === Math.sign(travel)) ? travel + dy : dy;
+    if (travel > 24) setHidden(true);
+    else if (travel < -60) setHidden(false);
   }
   lastY = y;
   if (!reduce && slidesBox && y < innerHeight) {
