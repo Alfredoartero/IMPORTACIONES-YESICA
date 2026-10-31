@@ -529,6 +529,8 @@ if (finePointer && !reduce && $("glow")) {
 /* ---- Efectos con el scroll ---- */
 const road = $("road"), heroContent = $("heroContent");
 let lastY = 0, ticking = false, mx = 0, my = 0, hidden = false, travel = 0;
+const KEEP_HDR = !!document.querySelector(".controls.sticky");
+if (KEEP_HDR) document.body.classList.add("has-sticky");
 if (finePointer && slidesBox) addEventListener("mousemove", e => { mx = e.clientX / innerWidth - .5; my = e.clientY / innerHeight - .5; if (!ticking) { requestAnimationFrame(onScroll); ticking = true; } }, {passive:true});
 function setHidden(h){ if (h === hidden) return; hidden = h; hdr.classList.toggle("hide", h); document.body.classList.toggle("hdr-hidden", h); }
 function onScroll(){
@@ -538,7 +540,8 @@ function onScroll(){
   // Mostrar/ocultar el menú con margen: solo cambia tras un desplazamiento real
   // (antes reaccionaba a 1px, al rebote del iPhone y al mover el mouse, y hacía saltar las barras)
   const dy = y - lastY;
-  if (hdr.classList.contains("open") || y < 300) { setHidden(false); travel = 0; }
+  // En Inventario el menú se queda fijo: así las barras de marcas/búsqueda no brincan
+  if (KEEP_HDR || hdr.classList.contains("open") || y < 300) { setHidden(false); travel = 0; }
   else if (dy !== 0 && y >= 0 && y <= H) {
     travel = (Math.sign(dy) === Math.sign(travel)) ? travel + dy : dy;
     if (travel > 24) setHidden(true);
