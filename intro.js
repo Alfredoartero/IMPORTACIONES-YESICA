@@ -74,19 +74,27 @@
   const el = document.createElement("div");
   el.className = "iy-intro"; el.setAttribute("role", "dialog"); el.setAttribute("aria-label", "Video de bienvenida");
   el.innerHTML = `
-    <video playsinline muted autoplay preload="auto" poster="${poster}"><source src="${src}" type="video/mp4"></video>
+    <div class="iy-vslot"></div>
     <div class="shade"></div>
     <div class="iy-top"><div class="iy-brand">IMPORTACIONES <b>YESICA</b></div>
       <button class="iy-skip" type="button">Saltar intro <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 5v14l9-7zM15 5h3v14h-3z"/></svg></button></div>
     <button class="iy-sound" type="button" aria-label="Activar sonido"><span class="ic">${ICON_ON}</span><span class="txt">Activar sonido</span><span class="eq"><i></i><i></i><i></i><i></i></span></button>
-    <button class="iy-play" type="button"><span><svg width="30" height="30" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></span>Ver video</button>
     <div class="iy-bar"><i></i></div>`;
+  // El video se crea por código y se marca SILENCIADO antes de cargarlo:
+  // así iPhone y Android lo dejan arrancar solo, igual que en la compu.
+  const v = document.createElement("video");
+  v.muted = true; v.defaultMuted = true; v.setAttribute("muted", "");
+  v.playsInline = true; v.setAttribute("playsinline", ""); v.setAttribute("webkit-playsinline", "");
+  v.autoplay = true; v.setAttribute("autoplay", ""); v.preload = "auto"; v.poster = poster;
+  v.disablePictureInPicture = true; v.setAttribute("disableremoteplayback", "");
+  v.src = src;
+  el.querySelector(".iy-vslot").replaceWith(v);
   document.body.appendChild(el);
   const prevOverflow = document.documentElement.style.overflow;
   document.documentElement.style.overflow = "hidden";
 
-  const v = el.querySelector("video"), bar = el.querySelector(".iy-bar i");
-  const btnSound = el.querySelector(".iy-sound"), btnPlay = el.querySelector(".iy-play");
+  const bar = el.querySelector(".iy-bar i");
+  const btnSound = el.querySelector(".iy-sound");
   let cerrado = false;
   function cerrar() {
     if (cerrado) return; cerrado = true;
@@ -110,13 +118,24 @@
     btnSound.querySelector(".ic").innerHTML = v.muted ? ICON_OFF : ICON_ON;
     btnSound.setAttribute("aria-label", v.muted ? "Activar sonido" : "Silenciar");
   });
-  btnPlay.addEventListener("click", () => { btnPlay.classList.remove("show"); conSonido(); });
   el.querySelector(".iy-skip").addEventListener("click", cerrar);
   addEventListener("keydown", e => { if (e.key === "Escape") cerrar(); });
   v.addEventListener("timeupdate", () => { if (v.duration) bar.style.width = (v.currentTime / v.duration * 100) + "%"; });
   v.addEventListener("ended", cerrar);
   v.addEventListener("error", cerrar);
-  // si el navegador bloquea incluso el autoplay sin sonido (ahorro de batería), mostrar "Ver video"
-  const p = v.play();
-  if (p && p.catch) p.catch(() => { btnSound.classList.add("hide"); btnPlay.classList.add("show"); });
+  // Arranque automático (sin sonido), con reintentos mientras el video carga
+  let andando = false;
+  function intentar() {
+    if (andando || cerrado) return;
+    if (!btnSound.classList.contains("on")) { v.muted = true; }
+    const p = v.play();
+    if (p && p.then) p.then(() => { andando = true; }).catch(() => {});
+  }
+  v.addEventListener("playing", () => { andando = true; });
+  ["loadedmetadata", "loadeddata", "canplay"].forEach(ev => v.addEventListener(ev, intentar));
+  [0, 300, 900, 1800, 3000].forEach(ms => setTimeout(intentar, ms));
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) intentar(); });
+  // Si el teléfono está en modo ahorro de batería (iPhone no deja reproducir solo),
+  // el primer toque en cualquier parte lo arranca; "Activar sonido" lo arranca con audio.
+  el.addEventListener("pointerdown", e => { if (!e.target.closest("button")) intentar(); }, { passive: true });
 })();
