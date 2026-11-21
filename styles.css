@@ -750,3 +750,14 @@ body:has(.modal-backdrop.show) .wa-float{opacity:0;pointer-events:none}
   .controls.sticky.stuck{box-shadow:0 10px 30px -12px rgba(0,0,0,.7)}
 }
 body.has-sticky header.scrolled .nav{background:rgba(13,15,20,.94)}
+
+/* v9: en teléfono solo se queda pegada la barra de marcas; búsqueda y orden se van con el scroll,
+   así la tarjeta del carro cabe completa en pantalla */
+@media (max-width:640px){
+  .controls.sticky{display:contents}
+  .controls.sticky .seg{position:sticky;top:80px;z-index:20;margin:0 0 10px;background:rgba(13,15,20,.96);
+    box-shadow:0 10px 26px -10px rgba(0,0,0,.8);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+  .controls.sticky .tools{margin-bottom:18px}
+  .wa-float{width:52px;height:52px;right:14px}
+  .wa-float svg{width:25px;height:25px}
+}
