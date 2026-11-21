@@ -765,6 +765,11 @@ body.has-sticky header.scrolled .nav{background:rgba(13,15,20,.94)}
 /* v10: en computadora la tarjeta del carro cabe completa debajo de las barras fijas,
    la foto se ajusta a la altura de la pantalla */
 @media (min-width:641px){
-  #grid .c-media{max-height:max(160px,calc(100vh - 462px))}
+  #grid .c-media{max-height:max(110px,calc(100vh - 462px))}
   #grid .c-foot{padding:14px 22px 18px}
 }
+
+/* v11: al hacer scroll en Inventario, las tarjetas se acomodan solas justo debajo de las barras fijas */
+html:has(body.has-sticky){scroll-snap-type:y proximity}
+#grid .card{scroll-snap-align:start;scroll-margin-top:178px}
+@media (max-width:640px){#grid .card{scroll-margin-top:146px}}
