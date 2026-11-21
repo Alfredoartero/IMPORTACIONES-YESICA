@@ -765,11 +765,17 @@ body.has-sticky header.scrolled .nav{background:rgba(13,15,20,.94)}
 /* v10: en computadora la tarjeta del carro cabe completa debajo de las barras fijas,
    la foto se ajusta a la altura de la pantalla */
 @media (min-width:641px){
-  #grid .c-media{max-height:max(110px,calc(100vh - 462px))}
   #grid .c-foot{padding:14px 22px 18px}
 }
 
 /* v11: al hacer scroll en Inventario, las tarjetas se acomodan solas justo debajo de las barras fijas */
 html:has(body.has-sticky){scroll-snap-type:y proximity}
-#grid .card{scroll-snap-align:start;scroll-margin-top:178px}
+#grid .card{scroll-snap-align:start;scroll-margin-top:176px}
 @media (max-width:640px){#grid .card{scroll-margin-top:146px}}
+
+/* v12: en computadora la tarjeta nunca es más alta que el espacio bajo las barras fijas;
+   si el nombre ocupa más líneas, la foto se achica sola */
+@media (min-width:641px){
+  #grid .card{max-height:max(400px,calc(100vh - 190px))}
+  #grid .c-media{flex:1 1 auto;min-height:110px}
+}
