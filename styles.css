@@ -779,3 +779,7 @@ html:has(body.has-sticky){scroll-snap-type:y proximity}
   #grid .card{max-height:max(400px,calc(100vh - 190px))}
   #grid .c-media{flex:1 1 auto;min-height:110px}
 }
+
+/* v13: estado "En reparación": ámbar con puntito animado, para distinguirlo de los demás */
+.c-badge.work{background:rgba(245,158,11,.1);color:#fbbf24;border-color:rgba(245,158,11,.35)}
+.c-badge.work::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:#f59e0b;margin-right:6px;vertical-align:1px;animation:blink 1.6s infinite}

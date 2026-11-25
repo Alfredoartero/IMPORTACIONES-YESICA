@@ -152,10 +152,11 @@ function buildCard(car){
   const card = document.createElement("article");
   card.className = "card";
   const go = /camino/i.test(car.badge);
+  const work = /en reparaci/i.test(car.badge);
   card.innerHTML = `
     <div class="c-head">
       <div><h3></h3><p class="from">Precio<b></b></p></div>
-      <span class="c-badge ${go ? "go" : ""}"></span>
+      <span class="c-badge ${go ? "go" : ""} ${work ? "work" : ""}"></span>
     </div>
     <div class="c-media"><span class="photo-count">${CAM}${car.images.length}</span><div class="scrub"></div></div>
     <div class="specs"></div>
